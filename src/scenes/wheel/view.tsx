@@ -1,6 +1,7 @@
 import JSX from "../../jsx";
 import { WheelModel, type WheelSector } from "./model";
 import { TopBar } from "../../components/TopBar";
+import type { WheelAction } from "src/types.ts";
 
 export class WheelView {
   canvas: HTMLCanvasElement;
@@ -94,7 +95,7 @@ export class WheelView {
     this.ctx.restore();
   }
 
-  showResult(winner: WheelSector, actions: any[], onClose: () => void) {
+  showResult(winner: WheelSector, removedUrl: string, actions: WheelAction[], onClose: () => void) {
     const sanitizedLabel = winner.label.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const id = winner.id || winner.label;
 
@@ -118,6 +119,9 @@ export class WheelView {
       <div>
         <h2>Result: {sanitizedLabel}</h2>
         {...actionLinks}
+        <a class="btn" href={removedUrl}>
+          Remove
+        </a>
         <button
           onclick={() => {
             if (wasClosed) return;

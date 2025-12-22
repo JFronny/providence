@@ -34,11 +34,11 @@ export class WheelModel {
       if (!(opt as any).id) (opt as any).id = opt.label;
     });
 
-    this.totalWeight = config.options.reduce((sum, opt) => sum + opt.weight, 0);
+    this.totalWeight = config.options.reduce((sum, opt) => sum + opt.weight!, 0);
 
     let currentArc = 0;
     this.sectors = config.options.map((opt) => {
-      const arc = (TAU * opt.weight) / this.totalWeight;
+      const arc = (TAU * opt.weight!) / this.totalWeight;
       const sector = {
         ...opt,
         arc,
@@ -61,7 +61,7 @@ export class WheelModel {
     let accumulatedWeight = 0;
     let winnerIndex = -1;
     for (let i = 0; i < this.sectors.length; i++) {
-      accumulatedWeight += this.sectors[i].weight;
+      accumulatedWeight += this.sectors[i].weight!;
       if (r <= accumulatedWeight) {
         winnerIndex = i;
         break;

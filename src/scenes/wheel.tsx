@@ -24,8 +24,12 @@ export async function initWheelScreen(root: HTMLElement) {
   console.log("Loaded config:", structuredClone(config));
 
   // Normalize
+  if (config.options.length === 0) {
+    config.options = [{ id: "null", label: "Empty Wheel", color: "black" }];
+  }
   config.options.forEach((opt) => {
     opt.id = opt.id || opt.label;
+    opt.weight = Math.max(opt.weight || 0.01, 1);
     opt.color = opt.color || pickColor(cyrb128(opt.id));
   });
   config.options.sort((a, b) => a.label.localeCompare(b.label));
@@ -67,7 +71,9 @@ export async function initWheelScreen(root: HTMLElement) {
     if (finished) {
       const winner = model.winningSector;
       if (winner) {
-        view.showResult(winner, config.actions, () => {
+        const removedConfig = structuredClone(config);
+        removedConfig.options = config.options.filter((opt) => opt.id !== winner.id);
+        view.showResult(winner, `/?config=${encodeURIComponent(JSON.stringify(removedConfig))}`, config.actions, () => {
           // Resume idle spin
           update();
         });

@@ -249,7 +249,7 @@ button:has(input:disabled),
 
   .btn,
   button {
-    margin: 5px;
+    margin: 20px 5px 5px;
   }
 }
 

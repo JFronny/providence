@@ -1,7 +1,7 @@
 export interface WheelOption {
   id?: string;
   label: string;
-  weight: number;
+  weight?: number;
   color?: string;
 }
 

@@ -34,7 +34,9 @@ export function initHomeScreen(root: HTMLElement) {
           <a type="button" class="btn" style="margin: 5px;" href="/?page=about">
             About
           </a>
-          <a href="https://git.jfronny.dev/Johannes/providence" style="margin: 5px;" class="btn">Source</a>
+          <a href="https://git.jfronny.dev/Johannes/providence" style="margin: 5px;" class="btn">
+            Source
+          </a>
         </div>
       </div>
     </div>,
