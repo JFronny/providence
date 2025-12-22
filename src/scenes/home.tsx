@@ -14,6 +14,7 @@ export function initHomeScreen(root: HTMLElement) {
         <div class="card">
           <button
             type="button"
+            style="margin: 5px;"
             onclick={async (e: PointerEvent) => {
               const btn = e.currentTarget as HTMLButtonElement;
               btn.disabled = true;
@@ -30,9 +31,10 @@ export function initHomeScreen(root: HTMLElement) {
           >
             Create
           </button>
-          <a type="button" class="btn" style="margin-left: 10px;" href="/?page=about">
+          <a type="button" class="btn" style="margin: 5px;" href="/?page=about">
             About
           </a>
+          <a href="https://git.jfronny.dev/Johannes/providence" style="margin: 5px;" class="btn">Source</a>
         </div>
       </div>
     </div>,

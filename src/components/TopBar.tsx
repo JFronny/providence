@@ -11,6 +11,7 @@ export function TopBar() {
       <div class="top-bar-links">
         <a href="/?page=create">Create</a>
         <a href="/?page=about">About</a>
+        <a href="https://git.jfronny.dev/Johannes/providence">Source</a>
       </div>
     </nav>
   ) as HTMLElement;
