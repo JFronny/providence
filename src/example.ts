@@ -5,12 +5,12 @@ export const exampleConfig: WheelConfig = {
   options: [
     { label: "Option 1", id: "1", weight: 1, color: "red" },
     { label: "Option 2", id: "2", weight: 2, color: "blue" },
-    { label: "Option 3", id: "3", weight: 1, color: "green" }
+    { label: "Option 3", id: "3", weight: 1, color: "green" },
   ],
   actions: [
     { name: "Search by ID", template: "https://google.com/search?q={}" },
-    { name: "Search by Label", template: "https://google.com/search?q={label}" }
-  ]
+    { name: "Search by Label", template: "https://google.com/search?q={label}" },
+  ],
 };
 
 export function getExampleUrl() {
@@ -18,4 +18,3 @@ export function getExampleUrl() {
   const encoded = encodeURIComponent(json);
   return `/?config=${encoded}`;
 }
-

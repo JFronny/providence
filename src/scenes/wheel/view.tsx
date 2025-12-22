@@ -11,9 +11,9 @@ export class WheelView {
 
   constructor(root: HTMLElement) {
     // Setup UI
-    this.canvas = <canvas width="500" height="500" class="wheel-canvas"></canvas> as HTMLCanvasElement;
-    this.spinButton = <button class="spin-button">SPIN</button> as HTMLButtonElement;
-    this.dialog = <dialog class="result-dialog"></dialog> as HTMLDialogElement;
+    this.canvas = (<canvas width="500" height="500" class="wheel-canvas"></canvas>) as HTMLCanvasElement;
+    this.spinButton = (<button class="spin-button">SPIN</button>) as HTMLButtonElement;
+    this.dialog = (<dialog class="result-dialog"></dialog>) as HTMLDialogElement;
 
     const wheelWrapper = (
       <div class="wheel-wrapper">
@@ -23,15 +23,16 @@ export class WheelView {
     ) as HTMLDivElement;
 
     root.replaceChildren(
-      <div>
+      <div class="page-layout centered">
         {TopBar()}
-        <div class="wheel-container">
-          <h1>Wheel of Fortune</h1>
-          {wheelWrapper}
-          {this.spinButton}
-          {this.dialog}
+        <div class="container">
+          <div class="wheel-container">
+            {wheelWrapper}
+            {this.spinButton}
+            {this.dialog}
+          </div>
         </div>
-      </div>
+      </div>,
     );
 
     this.ctx = this.canvas.getContext("2d")!;
@@ -44,12 +45,12 @@ export class WheelView {
   }
 
   playTick() {
-    if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+    if (this.audioCtx.state === "suspended") this.audioCtx.resume();
     const osc = this.audioCtx.createOscillator();
     const gain = this.audioCtx.createGain();
     osc.connect(gain);
     gain.connect(this.audioCtx.destination);
-    osc.type = 'triangle';
+    osc.type = "triangle";
     osc.frequency.setValueAtTime(600, this.audioCtx.currentTime);
     gain.gain.setValueAtTime(0.1, this.audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.00001, this.audioCtx.currentTime + 0.05);
@@ -67,7 +68,7 @@ export class WheelView {
     this.ctx.rotate(model.angle);
     this.ctx.translate(-rad, -rad);
 
-    model.sectors.forEach(sector => {
+    model.sectors.forEach((sector) => {
       this.drawSector(sector, rad);
     });
 
@@ -97,7 +98,7 @@ export class WheelView {
     const sanitizedLabel = winner.label.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const id = winner.id || winner.label;
 
-    const actionLinks = actions.map(action => {
+    const actionLinks = actions.map((action) => {
       let url = action.template;
       url = url.replace(/{id}/g, encodeURIComponent(id));
       url = url.replace(/{label}/g, encodeURIComponent(winner.label));
@@ -105,17 +106,19 @@ export class WheelView {
 
       // Basic sanitization of URL to prevent javascript:
       if (url.toLowerCase().startsWith("javascript:")) return "";
-      return <a href={url} target="_blank" class="action-link">{action.name}</a>;
+      return (
+        <a href={url} target="_blank" class="btn">
+          {action.name}
+        </a>
+      );
     });
 
     this.dialog.replaceChildren(
       <div>
         <h2>Result: {sanitizedLabel}</h2>
-        <div style="margin: 10px 0;">
-          {...actionLinks}
-        </div>
+        {...actionLinks}
         <button id="closeDialog">Close</button>
-      </div>
+      </div>,
     );
 
     this.dialog.showModal();
@@ -129,4 +132,3 @@ export class WheelView {
     closeBtn?.addEventListener("click", closeHandler);
   }
 }
-

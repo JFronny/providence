@@ -1,15 +1,15 @@
-import {getLatestBlockHash, getNonce} from "../random";
-import type {WheelConfig} from "../types";
+import { getLatestBlockHash, getNonce } from "../random";
+import type { WheelConfig } from "../types";
 import { WheelModel } from "./wheel/model";
 import { WheelView } from "./wheel/view";
-import JSX from "src/jsx.ts";
+import { message } from "src/scenes/message.tsx";
 
 export async function initWheelScreen(root: HTMLElement) {
   const params = new URLSearchParams(window.location.search);
   const configStr = params.get("config");
 
   if (!configStr) {
-    root.replaceChildren(<h1>Invalid Configuration</h1>);
+    message(root, "No configuration provided");
     return;
   }
 
@@ -17,28 +17,28 @@ export async function initWheelScreen(root: HTMLElement) {
   try {
     config = JSON.parse(configStr);
   } catch (e) {
-    root.replaceChildren(<h1>Error parsing configuration</h1>);
+    message(root, "Error parsing configuration");
     console.error("Error parsing configuration", configStr, e);
     return;
   }
   console.log("Loaded config:", config);
 
   if (!config.hash) {
-    root.replaceChildren(<h1>Fetching latest hash...</h1>);
+    message(root, "Fetching latest block hash...");
     const hash = await getLatestBlockHash();
     if (hash) {
       config.hash = hash;
       const newConfigStr = encodeURIComponent(JSON.stringify(config));
       window.location.href = `/?config=${newConfigStr}`;
     } else {
-      root.replaceChildren(<h1>Failed to fetch hash</h1>);
+      message(root, "Failed to fetch latest block hash");
     }
     return;
   }
 
   const nonce = await getNonce(config.hash);
   if (!nonce) {
-    root.replaceChildren(<h1>Failed to fetch nonce</h1>);
+    message(root, "Failed to fetch nonce");
     return;
   }
 
@@ -81,8 +81,6 @@ export async function initWheelScreen(root: HTMLElement) {
     animationId = requestAnimationFrame(update);
   }
 
-
   // Start
   update();
 }
-

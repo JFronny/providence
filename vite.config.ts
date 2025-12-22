@@ -13,7 +13,7 @@ export default defineConfig({
       manifest: {
         name: "WebTech Motorized",
         short_name: "Motorized",
-      }
+      },
     }),
   ],
   base: "/",

@@ -1,5 +1,5 @@
 import JSX from "../jsx";
-import favicon from '/favicon.svg?url';
+import favicon from "/favicon.svg?url";
 
 export function TopBar() {
   return (
@@ -15,4 +15,3 @@ export function TopBar() {
     </nav>
   ) as HTMLElement;
 }
-

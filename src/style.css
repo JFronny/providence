@@ -25,8 +25,7 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  display: block;
   min-width: 320px;
   min-height: 100vh;
 }
@@ -34,13 +33,46 @@ body {
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  margin-block-start: 0;
 }
 
 #app {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.page-layout.centered {
+  /* No justify-content on parent, so TopBar stays at top */
+}
+
+.page-layout .container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.page-layout.centered .container {
+  justify-content: center;
+}
+
+.container {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
 }
 
 .logo {
@@ -64,7 +96,8 @@ h1 {
   color: #888;
 }
 
-button, .btn {
+button,
+.btn {
   > input {
     display: none;
   }
@@ -79,7 +112,8 @@ button, .btn {
   transition: border-color 0.25s;
   color: inherit;
 }
-button:hover, .btn:hover {
+button:hover,
+.btn:hover {
   border-color: #646cff;
   color: inherit;
 }
@@ -89,7 +123,10 @@ button:focus-visible,
 .btn:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
-button:disabled, button:has(input:disabled), .btn:disabled, .btn:has(input:disabled) {
+button:disabled,
+button:has(input:disabled),
+.btn:disabled,
+.btn:has(input:disabled) {
   cursor: not-allowed;
   color: var(--disabled-color);
 }
@@ -103,7 +140,8 @@ button:disabled, button:has(input:disabled), .btn:disabled, .btn:has(input:disab
   a:hover {
     color: #747bff;
   }
-  button, .btn {
+  button,
+  .btn {
     background-color: #f9f9f9;
   }
 }
@@ -121,30 +159,42 @@ button:disabled, button:has(input:disabled), .btn:disabled, .btn:has(input:disab
 
 .form-input {
   width: 100%;
-  padding: 0.6em;
+  padding: 0.8em;
+  font-size: 1rem;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid #555;
   background-color: #1a1a1a;
   color: inherit;
   font-family: inherit;
   box-sizing: border-box;
+  transition: border-color 0.25s;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #646cff;
 }
 
 .form-textarea {
   width: 100%;
   height: 200px;
-  padding: 0.6em;
+  padding: 0.8em;
+  font-size: 1rem;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid #555;
   background-color: #1a1a1a;
   color: inherit;
   font-family: inherit;
-  resize: vertical;
+  min-width: 200px;
+  min-height: 100px;
   box-sizing: border-box;
+  transition: border-color 0.25s;
 }
 
 @media (prefers-color-scheme: light) {
-  .form-input, .form-textarea {
+  .form-input,
+  .form-textarea {
     background-color: #fff;
     border-color: #ccc;
   }
@@ -187,24 +237,37 @@ button:disabled, button:has(input:disabled), .btn:disabled, .btn:has(input:disab
 }
 
 .result-dialog {
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  padding: 2rem;
+  border-radius: 12px;
+  border: none;
   background: #242424;
   color: white;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+
+  .btn,
+  button {
+    margin: 5px;
+  }
+}
+
+.result-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
+}
+
+.result-dialog h2 {
+  margin-top: 0;
 }
 
 @media (prefers-color-scheme: light) {
   .result-dialog {
     background: #fff;
     color: #213547;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   }
-}
-
-.action-link {
-  display: block;
-  margin: 5px 0;
-  color: #646cff;
 }
 
 pre {

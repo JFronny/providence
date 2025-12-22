@@ -1,4 +1,4 @@
-import type {WheelConfig, WheelOption} from "../../types";
+import type { WheelConfig, WheelOption } from "../../types";
 import { mulberry32 } from "../../random";
 
 const PI = Math.PI;
@@ -19,7 +19,7 @@ export class WheelModel {
   spinSpeed: number = 0.002;
   isSpinning: boolean = false;
 
-  private readonly seed: number
+  private readonly seed: number;
   private targetAngle: number = 0;
   private startAngle: number = 0;
   private spinStartTime: number | null = null;
@@ -29,20 +29,20 @@ export class WheelModel {
     this.seed = seed;
 
     // Normalize options (default id to label)
-    this.config.options.forEach(opt => {
+    this.config.options.forEach((opt) => {
       if (!(opt as any).id) (opt as any).id = opt.label;
     });
 
     this.totalWeight = config.options.reduce((sum, opt) => sum + opt.weight, 0);
 
     let currentArc = 0;
-    this.sectors = config.options.map(opt => {
+    this.sectors = config.options.map((opt) => {
       const arc = (TAU * opt.weight) / this.totalWeight;
       const sector = {
         ...opt,
         arc,
         startArc: currentArc,
-        endArc: currentArc + arc
+        endArc: currentArc + arc,
       };
       currentArc += arc;
       return sector;
@@ -72,11 +72,11 @@ export class WheelModel {
     const winnerSector = this.sectors[winnerIndex];
     const winnerCenter = winnerSector.startArc + winnerSector.arc / 2;
 
-    const targetRotation = (3 * PI / 2) - winnerCenter;
+    const targetRotation = (3 * PI) / 2 - winnerCenter;
 
     // Add multiple full rotations
     const extraRotations = 5 + Math.floor(rand() * 5);
-    this.targetAngle = targetRotation + (extraRotations * TAU);
+    this.targetAngle = targetRotation + extraRotations * TAU;
 
     // Adjust current angle to be far enough behind target
     while (this.targetAngle < this.angle) this.targetAngle += TAU;
@@ -113,7 +113,7 @@ export class WheelModel {
   }
 
   getCurrentSector(): WheelSector | null {
-    const pointerAngle = (3 * PI / 2); // 270 degrees
+    const pointerAngle = (3 * PI) / 2; // 270 degrees
     let effectiveAngle = (pointerAngle - this.angle) % TAU;
     if (effectiveAngle < 0) effectiveAngle += TAU;
 
@@ -125,4 +125,3 @@ export class WheelModel {
     return null;
   }
 }
-
