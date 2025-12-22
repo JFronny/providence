@@ -13,6 +13,7 @@ export interface WheelSector extends WheelOption {
 export class WheelModel {
   config: WheelConfig;
   sectors: WheelSector[];
+  winningSector: WheelSector | null = null;
   totalWeight: number;
 
   angle: number = 0;
@@ -69,17 +70,12 @@ export class WheelModel {
 
     console.log("Picked winner:", this.config.options[winnerIndex]);
 
-    const winnerSector = this.sectors[winnerIndex];
-    const winnerCenter = winnerSector.startArc + winnerSector.arc / 2;
-
-    const targetRotation = (3 * PI) / 2 - winnerCenter;
+    this.winningSector = this.sectors[winnerIndex];
+    const targetRotation = (3 * PI) / 2 - (this.winningSector.startArc + rand() * this.winningSector.arc);
 
     // Add multiple full rotations
     const extraRotations = 5 + Math.floor(rand() * 5);
     this.targetAngle = targetRotation + extraRotations * TAU;
-
-    // Adjust current angle to be far enough behind target
-    while (this.targetAngle < this.angle) this.targetAngle += TAU;
 
     this.isSpinning = true;
     this.spinSpeed = 0;
@@ -89,7 +85,7 @@ export class WheelModel {
 
   update(timestamp: number) {
     if (!this.isSpinning) {
-      this.angle += this.spinSpeed;
+      this.angle = (this.angle + this.spinSpeed) % TAU;
       return;
     }
 

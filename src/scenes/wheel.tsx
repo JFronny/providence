@@ -56,7 +56,7 @@ export async function initWheelScreen(root: HTMLElement) {
     const finished = model.update(timestamp);
 
     if (finished) {
-      const winner = model.getCurrentSector();
+      const winner = model.winningSector;
       if (winner) {
         view.showResult(winner, config.actions, () => {
           // Resume idle spin
