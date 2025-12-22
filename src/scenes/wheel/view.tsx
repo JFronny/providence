@@ -1,0 +1,132 @@
+import JSX from "../../jsx";
+import { WheelModel, type WheelSector } from "./model";
+import { TopBar } from "../../components/TopBar";
+
+export class WheelView {
+  canvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
+  spinButton: HTMLButtonElement;
+  dialog: HTMLDialogElement;
+  audioCtx: AudioContext;
+
+  constructor(root: HTMLElement) {
+    // Setup UI
+    this.canvas = <canvas width="500" height="500" class="wheel-canvas"></canvas> as HTMLCanvasElement;
+    this.spinButton = <button class="spin-button">SPIN</button> as HTMLButtonElement;
+    this.dialog = <dialog class="result-dialog"></dialog> as HTMLDialogElement;
+
+    const wheelWrapper = (
+      <div class="wheel-wrapper">
+        {this.canvas}
+        <div class="wheel-pointer"></div>
+      </div>
+    ) as HTMLDivElement;
+
+    root.replaceChildren(
+      <div>
+        {TopBar()}
+        <div class="wheel-container">
+          <h1>Wheel of Fortune</h1>
+          {wheelWrapper}
+          {this.spinButton}
+          {this.dialog}
+        </div>
+      </div>
+    );
+
+    this.ctx = this.canvas.getContext("2d")!;
+    this.audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+  }
+
+  bindSpin(handler: () => void) {
+    this.spinButton.addEventListener("click", handler);
+    this.canvas.addEventListener("click", handler);
+  }
+
+  playTick() {
+    if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+    const osc = this.audioCtx.createOscillator();
+    const gain = this.audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(this.audioCtx.destination);
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(600, this.audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.1, this.audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.00001, this.audioCtx.currentTime + 0.05);
+    osc.start();
+    osc.stop(this.audioCtx.currentTime + 0.05);
+  }
+
+  draw(model: WheelModel) {
+    const dia = this.canvas.width;
+    const rad = dia / 2;
+
+    this.ctx.clearRect(0, 0, dia, dia);
+    this.ctx.save();
+    this.ctx.translate(rad, rad);
+    this.ctx.rotate(model.angle);
+    this.ctx.translate(-rad, -rad);
+
+    model.sectors.forEach(sector => {
+      this.drawSector(sector, rad);
+    });
+
+    this.ctx.restore();
+  }
+
+  private drawSector(sector: WheelSector, rad: number) {
+    this.ctx.save();
+    this.ctx.beginPath();
+    this.ctx.fillStyle = sector.color;
+    this.ctx.moveTo(rad, rad);
+    this.ctx.arc(rad, rad, rad, sector.startArc, sector.endArc);
+    this.ctx.lineTo(rad, rad);
+    this.ctx.fill();
+
+    // Text
+    this.ctx.translate(rad, rad);
+    this.ctx.rotate(sector.startArc + sector.arc / 2);
+    this.ctx.textAlign = "right";
+    this.ctx.fillStyle = "#fff";
+    this.ctx.font = "bold 20px sans-serif";
+    this.ctx.fillText(sector.label, rad - 10, 10);
+    this.ctx.restore();
+  }
+
+  showResult(winner: WheelSector, actions: any[], onClose: () => void) {
+    const sanitizedLabel = winner.label.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const id = winner.id || winner.label;
+
+    const actionLinks = actions.map(action => {
+      let url = action.template;
+      url = url.replace(/{id}/g, encodeURIComponent(id));
+      url = url.replace(/{label}/g, encodeURIComponent(winner.label));
+      url = url.replace(/{}/g, encodeURIComponent(id));
+
+      // Basic sanitization of URL to prevent javascript:
+      if (url.toLowerCase().startsWith("javascript:")) return "";
+      return <a href={url} target="_blank" class="action-link">{action.name}</a>;
+    });
+
+    this.dialog.replaceChildren(
+      <div>
+        <h2>Result: {sanitizedLabel}</h2>
+        <div style="margin: 10px 0;">
+          {...actionLinks}
+        </div>
+        <button id="closeDialog">Close</button>
+      </div>
+    );
+
+    this.dialog.showModal();
+
+    const closeBtn = this.dialog.querySelector("#closeDialog");
+    const closeHandler = () => {
+      this.dialog.close();
+      closeBtn?.removeEventListener("click", closeHandler);
+      onClose();
+    };
+    closeBtn?.addEventListener("click", closeHandler);
+  }
+}
+

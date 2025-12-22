@@ -1,29 +1,37 @@
 import '../style.css'
-import typescriptLogo from '../typescript.svg'
-import favicon from 'public/favicon.svg'
-import { setupCounter } from '../counter.ts'
+import favicon from '/favicon.svg?url'
 import JSX from "src/jsx.ts";
+import { getLatestBlockHash } from "../random.ts";
 
 export function initHomeScreen(root: HTMLElement) {
-  const counter = <button type="button"></button> as HTMLButtonElement
   root.replaceChildren(
     <div>
       <a href="https://vite.dev" target="_blank">
         <img src={favicon} class="logo" alt="Vite logo" />
       </a>
-      <a href="https://www.typescriptlang.org/" target="_blank">
-        <img src={typescriptLogo} class="logo vanilla" alt="TypeScript logo" />
-      </a>
-      <h1>Vite + TypeScript</h1>
+      <h1>Providence</h1>
       <div class="card">
-        {counter}
+        <div style="margin-top: 1em;">
+          <button type="button"
+                  onclick={async (e: PointerEvent) => {
+                    const btn = e.currentTarget as HTMLButtonElement;
+                    btn.disabled = true;
+                    btn.textContent = "Loading...";
+                    const hash = await getLatestBlockHash();
+                    if (hash) {
+                      window.location.href = `/?page=create&hash=${hash}`;
+                    } else {
+                      alert("Failed to fetch block hash. Please try again.");
+                      btn.disabled = false;
+                      btn.textContent = "Create Wheel";
+                    }
+                  }}
+          >
+            Create
+          </button>
+          <a type="button" class="btn" style="margin-left: 10px;" href="/?page=about">About</a>
+        </div>
       </div>
-      <p class="read-the-docs">
-        Click on the Vite and TypeScript logos to learn more
-      </p>
     </div>
   )
-  setupCounter(counter)
 }
-
-
