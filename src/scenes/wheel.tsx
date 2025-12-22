@@ -1,4 +1,4 @@
-import { getLatestBlockHash, getNonce } from "../random";
+import { cyrb128, getLatestBlockHash, getNonce, pickColor } from "../random";
 import type { WheelConfig } from "../types";
 import { WheelModel } from "./wheel/model";
 import { WheelView } from "./wheel/view";
@@ -21,7 +21,16 @@ export async function initWheelScreen(root: HTMLElement) {
     console.error("Error parsing configuration", configStr, e);
     return;
   }
-  console.log("Loaded config:", config);
+  console.log("Loaded config:", structuredClone(config));
+
+  // Normalize
+  config.options.forEach((opt) => {
+    opt.id = opt.id || opt.label;
+    opt.color = opt.color || pickColor(cyrb128(opt.id));
+  });
+  config.options.sort((a, b) => a.label.localeCompare(b.label));
+
+  console.log("Normalized config:", config);
 
   if (!config.hash) {
     message(root, "Fetching latest block hash...");

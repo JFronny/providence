@@ -78,7 +78,7 @@ export class WheelView {
   private drawSector(sector: WheelSector, rad: number) {
     this.ctx.save();
     this.ctx.beginPath();
-    this.ctx.fillStyle = sector.color;
+    this.ctx.fillStyle = sector.color!;
     this.ctx.moveTo(rad, rad);
     this.ctx.arc(rad, rad, rad, sector.startArc, sector.endArc);
     this.ctx.lineTo(rad, rad);
@@ -113,22 +113,24 @@ export class WheelView {
       );
     });
 
+    let wasClosed = false;
     this.dialog.replaceChildren(
       <div>
         <h2>Result: {sanitizedLabel}</h2>
         {...actionLinks}
-        <button id="closeDialog">Close</button>
+        <button
+          onclick={() => {
+            if (wasClosed) return;
+            wasClosed = true;
+            this.dialog.close();
+            onClose();
+          }}
+        >
+          Close
+        </button>
       </div>,
     );
 
     this.dialog.showModal();
-
-    const closeBtn = this.dialog.querySelector("#closeDialog");
-    const closeHandler = () => {
-      this.dialog.close();
-      closeBtn?.removeEventListener("click", closeHandler);
-      onClose();
-    };
-    closeBtn?.addEventListener("click", closeHandler);
   }
 }

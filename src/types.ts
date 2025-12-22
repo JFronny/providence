@@ -2,7 +2,7 @@ export interface WheelOption {
   id?: string;
   label: string;
   weight: number;
-  color: string;
+  color?: string;
 }
 
 export interface WheelAction {

@@ -13,20 +13,20 @@ export function initHomeScreen(root: HTMLElement) {
         <h1 style="margin: 0.5em">Providence</h1>
         <div class="card">
           <button
-                  type="button"
-                  onclick={async (e: PointerEvent) => {
-                    const btn = e.currentTarget as HTMLButtonElement;
-                    btn.disabled = true;
-                    btn.textContent = "Loading...";
-                    const hash = await getLatestBlockHash();
-                    if (hash) {
-                      window.location.href = `/?page=create&hash=${hash}`;
-                    } else {
-                      alert("Failed to fetch block hash. Please try again.");
-                      btn.disabled = false;
-                      btn.textContent = "Create Wheel";
-                    }
-                  }}
+            type="button"
+            onclick={async (e: PointerEvent) => {
+              const btn = e.currentTarget as HTMLButtonElement;
+              btn.disabled = true;
+              btn.textContent = "Loading...";
+              const hash = await getLatestBlockHash();
+              if (hash) {
+                window.location.href = `/?page=create&hash=${hash}`;
+              } else {
+                alert("Failed to fetch block hash. Please try again.");
+                btn.disabled = false;
+                btn.textContent = "Create Wheel";
+              }
+            }}
           >
             Create
           </button>

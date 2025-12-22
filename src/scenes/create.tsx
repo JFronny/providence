@@ -49,10 +49,9 @@ export function initCreateScreen(root: HTMLElement) {
                   weights[line] = (weights[line] || 0) + 1;
                 });
 
-                const options = Object.entries(weights).map(([label, weight], index) => ({
+                const options = Object.entries(weights).map(([label, weight]) => ({
                   label,
                   weight,
-                  color: `hsl(${(index * 137.508) % 360}, 70%, 50%)`,
                 }));
 
                 const config: WheelConfig = {
