@@ -49,8 +49,6 @@ export function cyrb128(str: string) {
 
 export function pickColor(seed: number) {
   const rand = mulberry32(seed);
-  const L = rand() * 0.8;
-  const C = rand() * 1.32;
   const H = (rand() * 360) % 360;
-  return `oklch(${L.toFixed(3)} ${C.toFixed(3)} ${H.toFixed(1)}deg)`;
+  return `oklch(0.5 0.3 ${H.toFixed(1)}deg)`;
 }

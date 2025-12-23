@@ -77,9 +77,14 @@ export class WheelView {
   }
 
   private drawSector(sector: WheelSector, rad: number) {
+    const color = sector.color!;
     this.ctx.save();
     this.ctx.beginPath();
-    this.ctx.fillStyle = sector.color!;
+    const gradient = this.ctx.createLinearGradient(0, 0, rad, rad);
+    gradient.addColorStop(0, color);
+    // Currently, this doesn't support specifying the color space in which the gradient is computed, which would make this rather ugly
+    // gradient.addColorStop(1, `oklch(from ${color} l c calc(h + 180)`)
+    this.ctx.fillStyle = gradient;
     this.ctx.moveTo(rad, rad);
     this.ctx.arc(rad, rad, rad, sector.startArc, sector.endArc);
     this.ctx.lineTo(rad, rad);
@@ -89,7 +94,12 @@ export class WheelView {
     this.ctx.translate(rad, rad);
     this.ctx.rotate(sector.startArc + sector.arc / 2);
     this.ctx.textAlign = "right";
-    this.ctx.fillStyle = "#fff";
+    const darkened = `(l - 0.4)`;
+    const lightened = `(l + 0.5)`;
+    const boundary = `(l - 0.4)/max(abs(l - 0.4), 0.0000001)`; // prevent divide by zero
+    const clampedBoundary = `clamp(${boundary}, 0, 1)`; // either 1 (if l > 0.4) or 0 (if l <= 0.4)
+    const resultingLightness = `calc(${darkened} * ${clampedBoundary} + ${lightened} * (1 - ${clampedBoundary}))`;
+    this.ctx.fillStyle = `oklch(from ${color} ${resultingLightness} c h)`;
     this.ctx.font = "bold 20px sans-serif";
     this.ctx.fillText(sector.label, rad - 10, 10);
     this.ctx.restore();
