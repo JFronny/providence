@@ -73,7 +73,9 @@ export async function initWheelScreen(root: HTMLElement) {
       if (winner) {
         const removedConfig = structuredClone(config);
         removedConfig.options = config.options.filter((opt) => opt.id !== winner.id);
-        view.showResult(winner, `/?config=${encodeURIComponent(JSON.stringify(removedConfig))}`, config.actions, () => {
+        const removedUrl =
+          config.options.length > 1 ? `/?config=${encodeURIComponent(JSON.stringify(removedConfig))}` : null;
+        view.showResult(winner, removedUrl, config.actions, () => {
           // Resume idle spin
           update();
         });

@@ -105,7 +105,7 @@ export class WheelView {
     this.ctx.restore();
   }
 
-  showResult(winner: WheelSector, removedUrl: string, actions: WheelAction[], onClose: () => void) {
+  showResult(winner: WheelSector, removedUrl: string | null, actions: WheelAction[], onClose: () => void) {
     const sanitizedLabel = winner.label.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const id = winner.id || winner.label;
 
@@ -124,24 +124,32 @@ export class WheelView {
       );
     });
 
+    if (removedUrl != null) {
+      actionLinks.push(
+        <a class="btn" href={removedUrl}>
+          Remove
+        </a>,
+      );
+    }
+
+    actionLinks.push(
+      <button
+        onclick={() => {
+          if (wasClosed) return;
+          wasClosed = true;
+          this.dialog.close();
+          onClose();
+        }}
+      >
+        Close
+      </button>,
+    );
+
     let wasClosed = false;
     this.dialog.replaceChildren(
       <div>
         <h2>Result: {sanitizedLabel}</h2>
         {...actionLinks}
-        <a class="btn" href={removedUrl}>
-          Remove
-        </a>
-        <button
-          onclick={() => {
-            if (wasClosed) return;
-            wasClosed = true;
-            this.dialog.close();
-            onClose();
-          }}
-        >
-          Close
-        </button>
       </div>,
     );
 
