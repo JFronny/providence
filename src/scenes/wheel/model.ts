@@ -53,11 +53,8 @@ export class WheelModel {
   spin() {
     if (this.isSpinning) return;
 
-    // Deterministic outcome
-    const rand = mulberry32(this.seed);
-
     // Pick winner
-    const r = rand() * this.totalWeight;
+    const r = mulberry32(this.seed)() * this.totalWeight;
     let accumulatedWeight = 0;
     let winnerIndex = -1;
     for (let i = 0; i < this.sectors.length; i++) {
@@ -71,6 +68,11 @@ export class WheelModel {
     console.log("Picked winner:", this.config.options[winnerIndex]);
 
     this.winningSector = this.sectors[winnerIndex];
+
+    // this random is NOT used to determine the winner and is purely aesthetical
+    // the sector count is used so that the final position is different after a sector has been removed
+    const rand = mulberry32(this.seed ^ this.sectors.length);
+
     const targetRotation = (3 * PI) / 2 - (this.winningSector.startArc + rand() * this.winningSector.arc);
 
     // Add multiple full rotations
