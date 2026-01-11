@@ -7,9 +7,7 @@ export function initHomeScreen(root: HTMLElement) {
   root.replaceChildren(
     <div class="page-layout centered">
       <div class="container">
-        <a href="https://vite.dev" target="_blank">
-          <img src={favicon} class="logo" alt="Vite logo" />
-        </a>
+        <img src={favicon} class="logo" alt="Vite logo" />
         <h1 style="margin: 0.5em">Providence</h1>
         <div class="card">
           <button
