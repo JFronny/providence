@@ -11,8 +11,8 @@ export default defineConfig({
       registerType: "autoUpdate",
       pwaAssets: {},
       manifest: {
-        name: "WebTech Motorized",
-        short_name: "Motorized",
+        name: "Providence",
+        short_name: "Providence",
       },
     }),
   ],
