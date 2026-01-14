@@ -59,7 +59,6 @@ export function initCreateScreen(root: HTMLElement) {
                   options,
                   actions: [
                     { name: "Google Search", template: "https://www.google.com/search?q={}" },
-                    { name: "Bing Search", template: "https://www.bing.com/search?q={}" },
                   ],
                 };
 
