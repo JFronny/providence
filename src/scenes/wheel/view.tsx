@@ -131,7 +131,7 @@ export class WheelView {
         current = w;
         if (lines.length >= 3) {
           lines[lines.length - 1] += "…";
-          break
+          break;
         }
       }
     }
