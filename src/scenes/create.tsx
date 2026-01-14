@@ -8,7 +8,7 @@ export function initCreateScreen(root: HTMLElement) {
   const initialHash = params.get("hash") || "";
 
   const hashInput = (
-    <input type="text" value={initialHash} class="form-input" placeholder="Bitcoin Block Hash" />
+    <input type="text" value={initialHash} class="form-input" placeholder="Latest Block Hash" />
   ) as HTMLInputElement;
   const contentInput = (
     <textarea class="form-textarea" placeholder="Enter options, one per line. Duplicates increase weight."></textarea>
@@ -57,9 +57,7 @@ export function initCreateScreen(root: HTMLElement) {
                 const config: WheelConfig = {
                   hash: hash || (await getLatestBlockHash()) || undefined,
                   options,
-                  actions: [
-                    { name: "Google Search", template: "https://www.google.com/search?q={}" },
-                  ],
+                  actions: [{ name: "Google Search", template: "https://www.google.com/search?q={}" }],
                 };
 
                 const json = JSON.stringify(config);

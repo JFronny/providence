@@ -132,9 +132,9 @@ export class WheelView {
 
     if (removedUrl != null) {
       actionLinks.push(
-        <button class="btn" href={removedUrl}>
+        <a class="btn" href={removedUrl}>
           Remove
-        </button>,
+        </a>,
       );
     }
 

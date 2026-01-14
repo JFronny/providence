@@ -59,7 +59,7 @@ export class WheelModel {
 
     // Pick winner
     const rand = mulberry32(seed);
-    const r = rand() * this.totalWeight
+    const r = rand() * this.totalWeight;
     let accumulatedWeight = 0;
     let winnerIndex = -1;
     for (let i = 0; i < this.sectors.length; i++) {
