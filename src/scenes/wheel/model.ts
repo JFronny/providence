@@ -15,19 +15,20 @@ export class WheelModel {
   sectors: WheelSector[];
   winningSector: WheelSector | null = null;
   totalWeight: number;
+  respinCount: number = 0;
 
   angle: number = 0;
   spinSpeed: number = 0.002;
   isSpinning: boolean = false;
 
-  private readonly seed: number;
+  private readonly baseSeed: number;
   private targetAngle: number = 0;
   private startAngle: number = 0;
   private spinStartTime: number | null = null;
 
   constructor(config: WheelConfig, seed: number) {
     this.config = config;
-    this.seed = seed;
+    this.baseSeed = seed;
 
     // Normalize options (default id to label)
     this.config.options.forEach((opt) => {
@@ -53,8 +54,12 @@ export class WheelModel {
   spin() {
     if (this.isSpinning) return;
 
+    const seed = this.baseSeed ^ this.respinCount ^ this.sectors.length;
+    this.respinCount++;
+
     // Pick winner
-    const r = mulberry32(this.seed)() * this.totalWeight;
+    const rand = mulberry32(seed);
+    const r = rand() * this.totalWeight
     let accumulatedWeight = 0;
     let winnerIndex = -1;
     for (let i = 0; i < this.sectors.length; i++) {
@@ -68,10 +73,6 @@ export class WheelModel {
     console.log("Picked winner:", this.config.options[winnerIndex]);
 
     this.winningSector = this.sectors[winnerIndex];
-
-    // this random is NOT used to determine the winner and is purely aesthetical
-    // the sector count is used so that the final position is different after a sector has been removed
-    const rand = mulberry32(this.seed ^ this.sectors.length);
 
     const targetRotation = (3 * PI) / 2 - (this.winningSector.startArc + rand() * this.winningSector.arc);
 

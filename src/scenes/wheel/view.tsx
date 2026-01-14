@@ -9,12 +9,14 @@ export class WheelView {
   spinButton: HTMLButtonElement;
   dialog: HTMLDialogElement;
   audioCtx: AudioContext;
+  respinCount: HTMLDivElement;
 
   constructor(root: HTMLElement, blockHash: string) {
     // Setup UI
     this.canvas = (<canvas width="500" height="500" class="wheel-canvas"></canvas>) as HTMLCanvasElement;
     this.spinButton = (<button class="spin-button">SPIN</button>) as HTMLButtonElement;
     this.dialog = (<dialog class="result-dialog"></dialog>) as HTMLDialogElement;
+    this.respinCount = (<div class="respin-count" />) as HTMLDivElement;
 
     const wheelWrapper = (
       <div class="wheel-wrapper">
@@ -31,6 +33,7 @@ export class WheelView {
             {wheelWrapper}
             {this.spinButton}
             <div class="block-hash">Block Hash: {blockHash}</div>
+            {this.respinCount}
             {this.dialog}
           </div>
         </div>
@@ -75,6 +78,8 @@ export class WheelView {
     });
 
     this.ctx.restore();
+
+    this.respinCount.textContent = `Spins: ${model.respinCount}`;
   }
 
   private drawSector(sector: WheelSector, rad: number) {

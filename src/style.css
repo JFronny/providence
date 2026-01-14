@@ -207,7 +207,8 @@ button:has(input:disabled),
   align-items: center;
 }
 
-.block-hash {
+.block-hash,
+.respin-count {
   font-family: monospace;
   font-size: 0.9em;
   margin: 0.5em 0;
