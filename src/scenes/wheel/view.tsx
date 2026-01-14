@@ -41,9 +41,9 @@ export class WheelView {
     this.audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
   }
 
-  bindSpin(handler: () => void) {
-    this.spinButton.addEventListener("click", handler);
-    this.canvas.addEventListener("click", handler);
+  bind(doSpin: () => void) {
+    this.spinButton.addEventListener("click", doSpin);
+    this.canvas.addEventListener("click", doSpin);
   }
 
   playTick() {
