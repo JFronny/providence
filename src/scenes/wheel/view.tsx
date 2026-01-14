@@ -106,7 +106,7 @@ export class WheelView {
     const clampedBoundary = `clamp(${boundary}, 0, 1)`; // either 1 (if l > 0.4) or 0 (if l <= 0.4)
     const resultingLightness = `calc(${darkened} * ${clampedBoundary} + ${lightened} * (1 - ${clampedBoundary}))`;
     this.ctx.fillStyle = `oklch(from ${color} ${resultingLightness} c h)`;
-    this.ctx.font = "bold 20px sans-serif";
+    this.ctx.font = "bold 24px sans-serif";
     const lineHeight = 26;
     const lines = this.breakLabel(sector.label, rad);
     const startY = 10 - ((lines.length - 1) * lineHeight) / 2;
