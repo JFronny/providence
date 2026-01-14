@@ -207,6 +207,13 @@ button:has(input:disabled),
   align-items: center;
 }
 
+.block-hash {
+  font-family: monospace;
+  font-size: 0.9em;
+  margin: 0.5em 0;
+  color: var(--disabled-color);
+}
+
 .wheel-wrapper {
   position: relative;
   display: inline-block;
@@ -232,7 +239,7 @@ button:has(input:disabled),
 }
 
 .spin-button {
-  margin-top: 20px;
+  margin: 20px 0;
   font-size: 1.5em;
 }
 

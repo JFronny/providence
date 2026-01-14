@@ -56,7 +56,7 @@ export async function initWheelScreen(root: HTMLElement) {
   }
 
   const model = new WheelModel(config, nonce);
-  const view = new WheelView(root);
+  const view = new WheelView(root, config.hash);
 
   view.bindSpin(() => {
     model.spin();

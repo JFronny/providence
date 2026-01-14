@@ -10,7 +10,7 @@ export class WheelView {
   dialog: HTMLDialogElement;
   audioCtx: AudioContext;
 
-  constructor(root: HTMLElement) {
+  constructor(root: HTMLElement, blockHash: string) {
     // Setup UI
     this.canvas = (<canvas width="500" height="500" class="wheel-canvas"></canvas>) as HTMLCanvasElement;
     this.spinButton = (<button class="spin-button">SPIN</button>) as HTMLButtonElement;
@@ -30,6 +30,7 @@ export class WheelView {
           <div class="wheel-container">
             {wheelWrapper}
             {this.spinButton}
+            <div class="block-hash">Block Hash: {blockHash}</div>
             {this.dialog}
           </div>
         </div>
