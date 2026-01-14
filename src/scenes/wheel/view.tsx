@@ -107,8 +107,47 @@ export class WheelView {
     const resultingLightness = `calc(${darkened} * ${clampedBoundary} + ${lightened} * (1 - ${clampedBoundary}))`;
     this.ctx.fillStyle = `oklch(from ${color} ${resultingLightness} c h)`;
     this.ctx.font = "bold 20px sans-serif";
-    this.ctx.fillText(sector.label, rad - 10, 10);
+    const lineHeight = 26;
+    const lines = this.breakLabel(sector.label, rad);
+    const startY = 10 - ((lines.length - 1) * lineHeight) / 2;
+    for (let i = 0; i < lines.length; i++) {
+      this.ctx.fillText(lines[i], rad - 10, startY + i * lineHeight);
+    }
     this.ctx.restore();
+  }
+
+  private breakLabel(label: string, rad: number): string[] {
+    const maxWidth = rad - 30;
+    const words = label.split(/\s+/);
+    let lines: string[] = [];
+    let current = words[0] || "";
+    for (let i = 1; i < words.length; i++) {
+      const w = words[i];
+      const test = current + " " + w;
+      if (this.ctx.measureText(test).width <= maxWidth) {
+        current = test;
+      } else {
+        lines.push(current);
+        current = w;
+        if (lines.length >= 3) {
+          lines[lines.length - 1] += "…";
+          break
+        }
+      }
+    }
+    if (current && lines.length <= 2) lines.push(current);
+
+    // If a single line and still too long (long word), ellipsize
+    if (lines.length === 1 && this.ctx.measureText(lines[0]).width > maxWidth) {
+      const ell = "…";
+      let text = lines[0];
+      while (text.length > 0 && this.ctx.measureText(text + ell).width > maxWidth) {
+        text = text.slice(0, -1);
+      }
+      lines[0] = text + ell;
+    }
+
+    return lines;
   }
 
   showResult(winner: WheelSector, removedUrl: string | null, actions: WheelAction[], onClose: () => void) {
