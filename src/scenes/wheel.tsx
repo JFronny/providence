@@ -24,15 +24,17 @@ export async function initWheelScreen(root: HTMLElement) {
   console.log("Loaded config:", structuredClone(config));
 
   // Normalize
-  if (config.options.length === 0) {
+  if (!config.options || config.options.length === 0) {
     config.options = [{ id: "null", label: "Empty Wheel", color: "black" }];
   }
   config.options.forEach((opt) => {
+    opt.label = opt.label || opt.id || "null";
     opt.id = opt.id || opt.label;
     opt.weight = Math.max(opt.weight || 0.01, 1);
     opt.color = opt.color || pickColor(cyrb128(opt.id));
   });
   config.options.sort((a, b) => a.label.localeCompare(b.label));
+  if (!config.actions) config.actions = [];
 
   console.log("Normalized config:", config);
 
