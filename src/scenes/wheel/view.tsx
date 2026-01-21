@@ -14,7 +14,11 @@ export class WheelView {
   constructor(root: HTMLElement, blockHash: string) {
     // Setup UI
     this.canvas = (<canvas width="500" height="500" class="wheel-canvas"></canvas>) as HTMLCanvasElement;
-    this.spinButton = (<button class="spin-button">SPIN</button>) as HTMLButtonElement;
+    this.spinButton = (
+      <button class="spin-button" autofocus>
+        SPIN
+      </button>
+    ) as HTMLButtonElement;
     this.dialog = (<dialog class="result-dialog"></dialog>) as HTMLDialogElement;
     this.respinCount = (<div class="respin-count" />) as HTMLDivElement;
 
