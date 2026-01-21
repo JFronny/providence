@@ -1,8 +1,56 @@
 import { cyrb128, getLatestBlockHash, getNonce, pickColor } from "../random";
-import type { WheelConfig } from "../types";
+import type { HashRef, WheelConfig } from "../types";
 import { WheelModel } from "./wheel/model";
 import { WheelView } from "./wheel/view";
 import { message } from "src/scenes/message.tsx";
+
+type ResolvedHash = { hash: string; redirect: boolean };
+
+async function getLatest(message: (message: string) => void): Promise<ResolvedHash | null> {
+  message("Fetching latest block hash...");
+  const hash = await getLatestBlockHash();
+  if (hash) {
+    return { hash, redirect: true };
+  } else {
+    message("Failed to fetch latest block hash");
+    return null;
+  }
+}
+
+export async function resolveHash(ref: HashRef, message: (message: string) => void): Promise<ResolvedHash | null> {
+  if (!ref) {
+    return getLatest(message);
+  } else {
+    // this is for legacy API compatibility
+    // noinspection SuspiciousTypeOfGuard
+    if (typeof ref === "string") {
+      return { hash: ref, redirect: false };
+    } else
+      switch (ref.type) {
+        case "current":
+          return getLatest(message);
+        case "historic":
+          return { hash: ref.hash, redirect: false };
+        case "next":
+          message("Waiting for next block hash");
+          const startHash = await getLatestBlockHash();
+          if (startHash == null) {
+            message("Failed to fetch latest block hash");
+            return null;
+          }
+          let count = 0;
+          while (true) {
+            count++;
+            message(`Waiting for next block hash (${count} polls)`);
+            await new Promise((resolve) => setTimeout(resolve, 20000));
+            const newHash = await getLatestBlockHash();
+            if (newHash && newHash !== startHash) {
+              return { hash: newHash, redirect: false };
+            }
+          }
+      }
+  }
+}
 
 export async function initWheelScreen(root: HTMLElement) {
   const params = new URLSearchParams(window.location.search);
@@ -38,27 +86,23 @@ export async function initWheelScreen(root: HTMLElement) {
 
   console.log("Normalized config:", config);
 
-  if (!config.hash) {
-    message(root, "Fetching latest block hash...");
-    const hash = await getLatestBlockHash();
-    if (hash) {
-      config.hash = hash;
-      const newConfigStr = encodeURIComponent(JSON.stringify(config));
-      window.location.href = `/?config=${newConfigStr}`;
-    } else {
-      message(root, "Failed to fetch latest block hash");
-    }
+  const resolved = await resolveHash(config.hash, (msg) => message(root, msg));
+  if (resolved == null) return;
+  if (resolved.redirect) {
+    config.hash = { hash: resolved.hash, type: "historic" };
+    const newConfigStr = encodeURIComponent(JSON.stringify(config));
+    window.location.href = `/?config=${newConfigStr}`;
     return;
   }
 
-  const nonce = await getNonce(config.hash);
+  const nonce = await getNonce(resolved.hash);
   if (!nonce) {
     message(root, "Failed to fetch nonce");
     return;
   }
 
   const model = new WheelModel(config, nonce);
-  const view = new WheelView(root, config.hash);
+  const view = new WheelView(root, resolved.hash);
 
   view.bind(() => {
     model.spin();

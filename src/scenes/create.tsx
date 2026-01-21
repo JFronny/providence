@@ -1,5 +1,5 @@
 import JSX from "../jsx";
-import type { WheelConfig } from "../types";
+import type { HashRef, WheelConfig } from "../types";
 import { TopBar } from "../components/TopBar";
 import { getLatestBlockHash } from "src/random.ts";
 
@@ -9,6 +9,23 @@ export function initCreateScreen(root: HTMLElement) {
 
   const hashInput = (
     <input type="text" value={initialHash} class="form-input" placeholder="Latest Block Hash" />
+  ) as HTMLInputElement;
+  const blockHashGroup = (
+    <div class="form-group">
+      <label class="form-label">Block Hash:</label>
+      {hashInput}
+    </div>
+  ) as HTMLDivElement;
+  const nextHashCheckbox = (
+    <input
+      type="checkbox"
+      class="form-checkbox"
+      onchange={(e: InputEvent) => {
+        const box = e.target as HTMLInputElement;
+        hashInput.disabled = box.checked;
+        blockHashGroup.style.display = box.checked ? "none" : "inherit";
+      }}
+    />
   ) as HTMLInputElement;
   const contentInput = (
     <textarea class="form-textarea" placeholder="Enter options, one per line. Duplicates increase weight."></textarea>
@@ -21,9 +38,12 @@ export function initCreateScreen(root: HTMLElement) {
         <div class="card">
           <h1>Create Wheel</h1>
           <div class="form-group">
-            <label class="form-label">Block Hash:</label>
-            {hashInput}
+            <label class="form-label">
+              {nextHashCheckbox}
+              Use next hash
+            </label>
           </div>
+          {blockHashGroup}
           <div class="form-group">
             <label class="form-label">Wheel Contents:</label>
             {contentInput}
@@ -32,7 +52,7 @@ export function initCreateScreen(root: HTMLElement) {
             <button
               type="button"
               onclick={async () => {
-                const hash: string = hashInput.value.trim();
+                let hash: HashRef = { type: "historic", hash: hashInput.value.trim() };
                 const content = contentInput.value.trim();
                 const lines = content
                   .split("\n")
@@ -53,9 +73,15 @@ export function initCreateScreen(root: HTMLElement) {
                   label,
                   weight,
                 }));
-
+                if (nextHashCheckbox.checked) {
+                  hash = { type: "next" };
+                } else if (!hash.hash) {
+                  const latestHash = await getLatestBlockHash();
+                  if (latestHash) hash.hash = latestHash;
+                  else hash = { type: "current" };
+                }
                 const config: WheelConfig = {
-                  hash: hash || (await getLatestBlockHash()) || undefined,
+                  hash: hash,
                   options,
                   actions: [{ name: "Google Search", template: "https://www.google.com/search?q={}" }],
                 };

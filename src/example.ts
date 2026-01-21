@@ -1,7 +1,7 @@
 import type { WheelConfig } from "./types";
 
 export const exampleConfig: WheelConfig = {
-  // hash: "00000000000000000001afcedd3aec4e978970fda3bb78db6df4887fca696960",
+  hash: { type: "current" },
   options: [
     { label: "Option 1", id: "1", weight: 1, color: "red" },
     { label: "Option 2", id: "2", weight: 2, color: "blue" },

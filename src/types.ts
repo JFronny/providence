@@ -10,8 +10,10 @@ export interface WheelAction {
   template: string;
 }
 
+export type HashRef = { type: "historic"; hash: string } | { type: "current" } | { type: "next" };
+
 export interface WheelConfig {
-  hash?: string;
+  hash: HashRef;
   options: WheelOption[];
   actions: WheelAction[];
 }
