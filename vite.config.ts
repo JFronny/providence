@@ -17,6 +17,9 @@ export default defineConfig({
     }),
   ],
   base: "/",
+  resolve: {
+    tsconfigPaths: true,
+  }
   // esbuild: {
   //   jsxFactory: "JSX.createElement",
   //   jsxFragment: "HTMLElement",
