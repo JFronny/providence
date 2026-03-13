@@ -48,7 +48,7 @@ export async function resolveHash(ref: HashRef, message: (message: string) => vo
               console.log("Got new block hash:", newHash);
               return { hash: newHash, redirect: true };
             } else {
-              console.log("Did not get new block hash, retrying...")
+              console.log("Did not get new block hash, retrying...");
             }
           }
       }
