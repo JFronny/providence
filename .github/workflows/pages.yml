@@ -26,10 +26,14 @@ jobs:
         with:
           version: 10
           cache: true
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Check Formatting
+        run: pnpm run format:check
+      - name: Lint
+        run: pnpm run lint:github
       - name: Build with Next.js
         run: pnpm run build
       - name: Upload artifact

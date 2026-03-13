@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "lint": "oxlint --type-aware .",
     "lint:format": "oxlint --type-aware . && oxfmt --check .",
-    "format": "oxfmt ."
+    "lint:github": "oxlint --format=github",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check"
   },
   "devDependencies": {
     "@vite-pwa/assets-generator": "^1.0.2",
