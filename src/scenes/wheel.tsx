@@ -45,7 +45,10 @@ export async function resolveHash(ref: HashRef, message: (message: string) => vo
             await new Promise((resolve) => setTimeout(resolve, 20000));
             const newHash = await getLatestBlockHash();
             if (newHash && newHash !== startHash) {
-              return { hash: newHash, redirect: false };
+              console.log("Got new block hash:", newHash);
+              return { hash: newHash, redirect: true };
+            } else {
+              console.log("Did not get new block hash, retrying...")
             }
           }
       }
@@ -89,6 +92,7 @@ export async function initWheelScreen(root: HTMLElement) {
   const resolved = await resolveHash(config.hash, (msg) => message(root, msg));
   if (resolved == null) return;
   if (resolved.redirect) {
+    console.log("Redirecting with resolved hash:", resolved.hash);
     config.hash = { hash: resolved.hash, type: "historic" };
     const newConfigStr = encodeURIComponent(JSON.stringify(config));
     window.location.href = `/?config=${newConfigStr}`;
