@@ -17,6 +17,7 @@ export const JSX = {
     }
     const el: HTMLElement = document.createElement(element);
     for (let k in props) {
+      if (k === "__self" || k === "__source") continue;
       if (k.startsWith("on")) {
         if (typeof props[k] !== "function") console.warn(`JSX event handler ${k} is not a function`);
         el.addEventListener(k.slice(2).toLowerCase(), props[k] as any);
