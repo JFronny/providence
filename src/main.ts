@@ -1,8 +1,8 @@
-import "./style.css";
-import { initHomeScreen } from "src/scenes/home.tsx";
-import { initCreateScreen } from "src/scenes/create.tsx";
-import { initWheelScreen } from "src/scenes/wheel.tsx";
+import "src/style.css";
 import { initAboutScreen } from "src/scenes/about.tsx";
+import { initCreateScreen } from "src/scenes/create.tsx";
+import { initHomeScreen } from "src/scenes/home.tsx";
+import { initWheelScreen } from "src/scenes/wheel.tsx";
 
 // Main entry point for the app
 // From here on, we rely purely on JSX-built elements
@@ -13,7 +13,7 @@ container.innerHTML = "";
 const params = new URLSearchParams(window.location.search);
 
 if (params.has("config")) {
-  initWheelScreen(container);
+  void initWheelScreen(container);
 } else if (params.get("page") === "create") {
   initCreateScreen(container);
 } else if (params.get("page") === "about") {

@@ -1,11 +1,9 @@
 {
   "compilerOptions": {
-    "jsx": "react",
-    "jsxFactory": "JSX.createElement",
-    "jsxFragmentFactory": "HTMLElement",
-    "baseUrl": ".",
+    "jsx": "react-jsx",
+    "jsxImportSource": "src/jsx",
     "paths": {
-      "src/*": ["src/*"]
+      "src/*": ["./src/*"]
     },
 
     "target": "ES2022",

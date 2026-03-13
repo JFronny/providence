@@ -1,5 +1,5 @@
-import type { WheelConfig, WheelOption } from "../../types";
-import { mulberry32 } from "../../random";
+import { mulberry32 } from "src/random";
+import type { WheelConfig, WheelOption } from "src/types";
 
 const PI = Math.PI;
 const TAU = 2 * PI;

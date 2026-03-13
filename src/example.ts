@@ -1,4 +1,4 @@
-import type { WheelConfig } from "./types";
+import type { WheelConfig } from "src/types";
 
 export const exampleConfig: WheelConfig = {
   hash: { type: "current" },

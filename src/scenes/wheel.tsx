@@ -1,8 +1,8 @@
-import { cyrb128, getLatestBlockHash, getNonce, pickColor } from "../random";
-import type { HashRef, WheelConfig } from "../types";
-import { WheelModel } from "./wheel/model";
-import { WheelView } from "./wheel/view";
+import { cyrb128, getLatestBlockHash, getNonce, pickColor } from "src/random";
 import { message } from "src/scenes/message.tsx";
+import { WheelModel } from "src/scenes/wheel/model";
+import { WheelView } from "src/scenes/wheel/view";
+import type { HashRef, WheelConfig } from "src/types";
 
 type ResolvedHash = { hash: string; redirect: boolean };
 

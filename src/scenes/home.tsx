@@ -1,6 +1,5 @@
-import "../style.css";
+import "src/style.css";
 import favicon from "/favicon.svg?url";
-import JSX from "src/jsx.ts";
 
 export function initHomeScreen(root: HTMLElement) {
   root.replaceChildren(

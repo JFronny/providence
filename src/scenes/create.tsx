@@ -1,7 +1,6 @@
-import JSX from "../jsx";
-import type { HashRef, WheelConfig } from "../types";
-import { TopBar } from "../components/TopBar";
+import { TopBar } from "src/components/TopBar";
 import { getLatestBlockHash } from "src/random.ts";
+import type { HashRef, WheelConfig } from "src/types";
 
 export function initCreateScreen(root: HTMLElement) {
   const params = new URLSearchParams(window.location.search);

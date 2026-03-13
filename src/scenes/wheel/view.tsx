@@ -1,7 +1,6 @@
-import JSX from "../../jsx";
-import { WheelModel, type WheelSector } from "./model";
-import { TopBar } from "../../components/TopBar";
-import type { WheelAction } from "src/types.ts";
+import { TopBar } from "src/components/TopBar";
+import { WheelModel, type WheelSector } from "src/scenes/wheel/model";
+import type { WheelAction } from "src/types";
 
 export class WheelView {
   canvas: HTMLCanvasElement;
@@ -54,7 +53,7 @@ export class WheelView {
   }
 
   playTick() {
-    if (this.audioCtx.state === "suspended") this.audioCtx.resume();
+    if (this.audioCtx.state === "suspended") void this.audioCtx.resume();
     const osc = this.audioCtx.createOscillator();
     const gain = this.audioCtx.createGain();
     osc.connect(gain);

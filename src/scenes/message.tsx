@@ -1,4 +1,3 @@
-import JSX from "src/jsx.ts";
 import { TopBar } from "src/components/TopBar.tsx";
 
 export function message(root: HTMLElement, message: string) {

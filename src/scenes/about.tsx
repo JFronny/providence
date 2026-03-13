@@ -1,8 +1,7 @@
-import JSX from "../jsx";
-import { TopBar } from "../components/TopBar";
-import exampleCode from "../example.ts?raw";
-import typesCode from "../types.ts?raw";
-import { getExampleUrl } from "../example";
+import { TopBar } from "src/components/TopBar";
+import { getExampleUrl } from "src/example";
+import exampleCode from "src/example.ts?raw";
+import typesCode from "src/types.ts?raw";
 
 export function initAboutScreen(root: HTMLElement) {
   root.replaceChildren(

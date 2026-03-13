@@ -1,4 +1,3 @@
-import JSX from "../jsx";
 import favicon from "/favicon.svg?url";
 
 export function TopBar() {
