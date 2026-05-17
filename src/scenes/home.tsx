@@ -8,10 +8,10 @@ export function initHomeScreen(root: HTMLElement) {
         <img src={favicon} class="logo" alt="Vite logo" />
         <h1 style="margin: 0.5em">Providence</h1>
         <div class="card">
-          <a class="btn" style="margin: 5px;" href="/?page=create">
+          <a class="btn" style="margin: 5px;" href={`${import.meta.env.BASE_URL}create`}>
             Create
           </a>
-          <a class="btn" style="margin: 5px;" href="/?page=about">
+          <a class="btn" style="margin: 5px;" href={`${import.meta.env.BASE_URL}about`}>
             About
           </a>
           <a class="btn" style="margin: 5px;" href="https://git.jfronny.dev/Johannes/providence">

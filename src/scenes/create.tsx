@@ -87,7 +87,7 @@ export function initCreateScreen(root: HTMLElement) {
 
                 const json = JSON.stringify(config);
                 const encoded = encodeURIComponent(json);
-                window.location.href = `/?config=${encoded}`;
+                window.location.href = `/wheel?config=${encoded}`;
               }}
             >
               Go to Wheel

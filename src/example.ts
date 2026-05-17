@@ -16,5 +16,5 @@ export const exampleConfig: WheelConfig = {
 export function getExampleUrl() {
   const json = JSON.stringify(exampleConfig);
   const encoded = encodeURIComponent(json);
-  return `/?config=${encoded}`;
+  return `${import.meta.env.BASE_URL}wheel?config=${encoded}`;
 }

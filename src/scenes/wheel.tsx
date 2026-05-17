@@ -95,7 +95,7 @@ export async function initWheelScreen(root: HTMLElement) {
     console.log("Redirecting with resolved hash:", resolved.hash);
     config.hash = { hash: resolved.hash, type: "historic" };
     const newConfigStr = encodeURIComponent(JSON.stringify(config));
-    window.location.href = `/?config=${newConfigStr}`;
+    window.location.href = `${import.meta.env.BASE_URL}?config=${newConfigStr}`;
     return;
   }
 
@@ -124,7 +124,9 @@ export async function initWheelScreen(root: HTMLElement) {
         const removedConfig = structuredClone(config);
         removedConfig.options = config.options.filter((opt) => opt.id !== winner.id);
         const removedUrl =
-          config.options.length > 1 ? `/?config=${encodeURIComponent(JSON.stringify(removedConfig))}` : null;
+          config.options.length > 1
+            ? `${import.meta.env.BASE_URL}?config=${encodeURIComponent(JSON.stringify(removedConfig))}`
+            : null;
         view.showResult(winner, removedUrl, config.actions, () => {
           // Resume idle spin
           update();
