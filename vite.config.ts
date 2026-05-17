@@ -13,7 +13,6 @@ export default defineConfig({
       },
     },
   },
-  appType: "mpa", // This is a SPA, but we do this ourself
   plugins: [
     basicSsl(),
     VitePWA({
