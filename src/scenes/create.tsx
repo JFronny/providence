@@ -1,6 +1,6 @@
 import { TopBar } from "src/components/TopBar";
 import { getLatestBlockHash } from "src/random.ts";
-import type { HashRef, WheelConfig } from "src/types";
+import type { HashRef, HashSource, WheelConfig } from "src/types";
 
 export function initCreateScreen(root: HTMLElement) {
   const params = new URLSearchParams(window.location.search);
@@ -15,6 +15,12 @@ export function initCreateScreen(root: HTMLElement) {
       {hashInput}
     </div>
   ) as HTMLDivElement;
+  const sourceSelect = (
+    <select class="form-input">
+      <option value="Bitcoin">Bitcoin</option>
+      <option value="Monero">Monero</option>
+    </select>
+  ) as HTMLSelectElement;
   const nextHashCheckbox = (
     <input
       type="checkbox"
@@ -37,6 +43,10 @@ export function initCreateScreen(root: HTMLElement) {
         <div class="card">
           <h1>Create Wheel</h1>
           <div class="form-group">
+            <label class="form-label">Hash Source:</label>
+            {sourceSelect}
+          </div>
+          <div class="form-group">
             <label class="form-label">
               {nextHashCheckbox}
               Use next hash
@@ -51,7 +61,7 @@ export function initCreateScreen(root: HTMLElement) {
             <button
               type="button"
               onclick={async () => {
-                let hash: HashRef = { type: "historic", hash: hashInput.value.trim() };
+                let hash: HashRef = { type: "historic", hash: hashInput.value.trim(), source: sourceSelect.value as HashSource };
                 const content = contentInput.value.trim();
                 const lines = content
                   .split("\n")
@@ -73,11 +83,11 @@ export function initCreateScreen(root: HTMLElement) {
                   weight,
                 }));
                 if (nextHashCheckbox.checked) {
-                  hash = { type: "next" };
+                  hash = { type: "next", source: hash.source };
                 } else if (!hash.hash) {
-                  const latestHash = await getLatestBlockHash();
+                  const latestHash = await getLatestBlockHash(hash.source!!);
                   if (latestHash) hash.hash = latestHash;
-                  else hash = { type: "current" };
+                  else hash = { type: "current", source: hash.source };
                 }
                 const config: WheelConfig = {
                   hash: hash,

@@ -10,7 +10,11 @@ export interface WheelAction {
   template: string;
 }
 
-export type HashRef = { type: "historic"; hash: string } | { type: "current" } | { type: "next" };
+export type HashSource = "Bitcoin" | "Monero"
+export const DefaultHashSource: HashSource = "Bitcoin";
+export type HashRef = { type: "historic"; hash: string; source?: HashSource }
+  | { type: "current"; source?: HashSource }
+  | { type: "next"; source?: HashSource };
 
 export interface WheelConfig {
   hash: HashRef;

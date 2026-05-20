@@ -1,18 +1,47 @@
-export async function getLatestBlockHash(): Promise<string | null> {
+import type {HashSource} from "src/types.ts";
+
+/**
+ * Get the latest block hash from a blockchain source
+ * @param source blockchain source
+ * @returns block hash
+ */
+export async function getLatestBlockHash(source: HashSource): Promise<string | null> {
   try {
-    const hashResponse = await fetch("https://blockstream.info/api/blocks/tip/hash");
-    return await hashResponse.text();
+    switch (source) {
+      case "Bitcoin":
+        const bitcoinResponse = await fetch("https://blockstream.info/api/blocks/tip/hash");
+        return await bitcoinResponse.text();
+      case "Monero":
+        const moneroResponse = await fetch("https://xmrchain.net/api/networkinfo"); // localmonero.co doesn't provide block hashes
+        const moneroData = await moneroResponse.json();
+        return moneroData.data.top_block_hash;
+    }
   } catch (error) {
     console.error("Failed to fetch Bitcoin hash:", error);
     return null;
   }
 }
 
-export async function getNonce(blockHash: string): Promise<number | null> {
+/**
+ * Get the nonce of a block hash
+ * @param blockHash block hash
+ * @param source blockchain source
+ * @returns 32-bit integer nonce
+ */
+export async function getNonce(blockHash: string, source: HashSource): Promise<number | null> {
   try {
-    const blockResponse = await fetch(`https://blockstream.info/api/block/${blockHash}`);
-    const blockData = await blockResponse.json();
-    return blockData.nonce; // This is a 32-bit integer (e.g., 2516440237)
+    const proxyUrl = "https://corsproxy.io/?";
+    switch (source) {
+      case "Bitcoin":
+        const bitcoinResponse = await fetch(`https://blockstream.info/api/block/${blockHash}`);
+        const bitcoinData = await bitcoinResponse.json();
+        return bitcoinData.nonce;
+      case "Monero":
+        const targetUrl = `https://localmonero.co/blocks/api/get_block_header/${blockHash}`;
+        const moneroResponse = await fetch(proxyUrl + encodeURIComponent(targetUrl)); // xmrchain.net doesn't provide nonces
+        const moneroData = await moneroResponse.json();
+        return moneroData.block_header.nonce;
+    }
   } catch (error) {
     console.error("Failed to fetch Bitcoin nonce:", error);
     return null;

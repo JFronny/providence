@@ -2,13 +2,13 @@ import { cyrb128, getLatestBlockHash, getNonce, pickColor } from "src/random";
 import { message } from "src/scenes/message.tsx";
 import { WheelModel } from "src/scenes/wheel/model";
 import { WheelView } from "src/scenes/wheel/view";
-import type { HashRef, WheelConfig } from "src/types";
+import {DefaultHashSource, type HashRef, type HashSource, type WheelConfig} from "src/types";
 
 type ResolvedHash = { hash: string; redirect: boolean };
 
-async function getLatest(message: (message: string) => void): Promise<ResolvedHash | null> {
+async function getLatest(source: HashSource, message: (message: string) => void): Promise<ResolvedHash | null> {
   message("Fetching latest block hash...");
-  const hash = await getLatestBlockHash();
+  const hash = await getLatestBlockHash(source);
   if (hash) {
     return { hash, redirect: true };
   } else {
@@ -19,7 +19,7 @@ async function getLatest(message: (message: string) => void): Promise<ResolvedHa
 
 export async function resolveHash(ref: HashRef, message: (message: string) => void): Promise<ResolvedHash | null> {
   if (!ref) {
-    return getLatest(message);
+    return getLatest(DefaultHashSource, message);
   } else {
     // this is for legacy API compatibility
     // noinspection SuspiciousTypeOfGuard
@@ -28,12 +28,12 @@ export async function resolveHash(ref: HashRef, message: (message: string) => vo
     } else
       switch (ref.type) {
         case "current":
-          return getLatest(message);
+          return getLatest(ref.source || DefaultHashSource, message);
         case "historic":
           return { hash: ref.hash, redirect: false };
         case "next":
           message("Waiting for next block hash");
-          const startHash = await getLatestBlockHash();
+          const startHash = await getLatestBlockHash(ref.source || DefaultHashSource);
           if (startHash == null) {
             message("Failed to fetch latest block hash");
             return null;
@@ -43,7 +43,7 @@ export async function resolveHash(ref: HashRef, message: (message: string) => vo
             count++;
             message(`Waiting for next block hash (${count} polls)`);
             await new Promise((resolve) => setTimeout(resolve, 20000));
-            const newHash = await getLatestBlockHash();
+            const newHash = await getLatestBlockHash(ref.source || DefaultHashSource);
             if (newHash && newHash !== startHash) {
               console.log("Got new block hash:", newHash);
               return { hash: newHash, redirect: true };
@@ -93,20 +93,20 @@ export async function initWheelScreen(root: HTMLElement) {
   if (resolved == null) return;
   if (resolved.redirect) {
     console.log("Redirecting with resolved hash:", resolved.hash);
-    config.hash = { hash: resolved.hash, type: "historic" };
+    config.hash = { hash: resolved.hash, type: "historic", source: config.hash.source };
     const newConfigStr = encodeURIComponent(JSON.stringify(config));
     window.location.href = `${import.meta.env.BASE_URL}?config=${newConfigStr}`;
     return;
   }
 
-  const nonce = await getNonce(resolved.hash);
+  const nonce = await getNonce(resolved.hash, config.hash.source || DefaultHashSource);
   if (!nonce) {
     message(root, "Failed to fetch nonce");
     return;
   }
 
   const model = new WheelModel(config, nonce);
-  const view = new WheelView(root, resolved.hash);
+  const view = new WheelView(root, resolved.hash, config.hash.source || DefaultHashSource);
 
   view.bind(() => {
     model.spin();
