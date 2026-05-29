@@ -1,7 +1,7 @@
 import "src/style.css";
 import favicon from "/favicon.svg?url";
 
-export function initHomeScreen(root: HTMLElement) {
+export function initHomeScreen(root: HTMLElement, _signal?: AbortSignal) {
   root.replaceChildren(
     <div class="page-layout centered">
       <div class="container">

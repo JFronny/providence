@@ -2,13 +2,19 @@ import { cyrb128, getLatestBlockHash, getNonce, pickColor } from "src/random";
 import { message } from "src/scenes/message.tsx";
 import { WheelModel } from "src/scenes/wheel/model";
 import { WheelView } from "src/scenes/wheel/view";
-import {DefaultHashSource, type HashRef, type HashSource, type WheelConfig} from "src/types";
+import { DefaultHashSource, type HashRef, type HashSource, type WheelConfig } from "src/types";
 
 type ResolvedHash = { hash: string; redirect: boolean };
 
-async function getLatest(source: HashSource, message: (message: string) => void): Promise<ResolvedHash | null> {
+async function getLatest(
+  source: HashSource,
+  message: (message: string) => void,
+  signal?: AbortSignal,
+): Promise<ResolvedHash | null> {
+  if (signal?.aborted) return null;
   message("Fetching latest block hash...");
   const hash = await getLatestBlockHash(source);
+  if (signal?.aborted) return null;
   if (hash) {
     return { hash, redirect: true };
   } else {
@@ -17,9 +23,14 @@ async function getLatest(source: HashSource, message: (message: string) => void)
   }
 }
 
-export async function resolveHash(ref: HashRef, message: (message: string) => void): Promise<ResolvedHash | null> {
+export async function resolveHash(
+  ref: HashRef,
+  message: (message: string) => void,
+  signal?: AbortSignal,
+): Promise<ResolvedHash | null> {
+  if (signal?.aborted) return null;
   if (!ref) {
-    return getLatest(DefaultHashSource, message);
+    return getLatest(DefaultHashSource, message, signal);
   } else {
     // this is for legacy API compatibility
     // noinspection SuspiciousTypeOfGuard
@@ -28,7 +39,7 @@ export async function resolveHash(ref: HashRef, message: (message: string) => vo
     } else
       switch (ref.type) {
         case "current":
-          return getLatest(ref.source || DefaultHashSource, message);
+          return getLatest(ref.source || DefaultHashSource, message, signal);
         case "historic":
           return { hash: ref.hash, redirect: false };
         case "next":
@@ -40,9 +51,11 @@ export async function resolveHash(ref: HashRef, message: (message: string) => vo
           }
           let count = 0;
           while (true) {
+            if (signal?.aborted) return null;
             count++;
             message(`Waiting for next block hash (${count} polls)`);
             await new Promise((resolve) => setTimeout(resolve, 20000));
+            if (signal?.aborted) return null;
             const newHash = await getLatestBlockHash(ref.source || DefaultHashSource);
             if (newHash && newHash !== startHash) {
               console.log("Got new block hash:", newHash);
@@ -55,7 +68,7 @@ export async function resolveHash(ref: HashRef, message: (message: string) => vo
   }
 }
 
-export async function initWheelScreen(root: HTMLElement) {
+export async function initWheelScreen(root: HTMLElement, signal?: AbortSignal) {
   const params = new URLSearchParams(window.location.search);
   const configStr = params.get("config");
 
@@ -89,8 +102,14 @@ export async function initWheelScreen(root: HTMLElement) {
 
   console.log("Normalized config:", config);
 
-  const resolved = await resolveHash(config.hash, (msg) => message(root, msg));
-  if (resolved == null) return;
+  const resolved = await resolveHash(
+    config.hash,
+    (msg) => {
+      if (!signal?.aborted) message(root, msg);
+    },
+    signal,
+  );
+  if (resolved == null || signal?.aborted) return;
   if (resolved.redirect) {
     console.log("Redirecting with resolved hash:", resolved.hash);
     config.hash = { hash: resolved.hash, type: "historic", source: config.hash.source };
@@ -100,6 +119,7 @@ export async function initWheelScreen(root: HTMLElement) {
   }
 
   const nonce = await getNonce(resolved.hash, config.hash.source || DefaultHashSource);
+  if (signal?.aborted) return;
   if (!nonce) {
     message(root, "Failed to fetch nonce");
     return;
@@ -116,6 +136,10 @@ export async function initWheelScreen(root: HTMLElement) {
   let animationId: number;
 
   function update(timestamp: number = performance.now()) {
+    if (signal?.aborted) {
+      cancelAnimationFrame(animationId);
+      return;
+    }
     const finished = model.update(timestamp);
 
     if (finished) {

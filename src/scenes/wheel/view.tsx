@@ -1,6 +1,6 @@
 import { TopBar } from "src/components/TopBar";
 import { WheelModel, type WheelSector } from "src/scenes/wheel/model";
-import type {HashSource, WheelAction} from "src/types";
+import type { HashSource, WheelAction } from "src/types";
 
 export class WheelView {
   canvas: HTMLCanvasElement;
@@ -35,7 +35,9 @@ export class WheelView {
           <div class="wheel-container">
             {wheelWrapper}
             {this.spinButton}
-            <div class="block-hash">{hashSource} Block Hash: {blockHash}</div>
+            <div class="block-hash">
+              {hashSource} Block Hash: {blockHash}
+            </div>
             {this.respinCount}
             {this.dialog}
           </div>

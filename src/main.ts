@@ -25,19 +25,27 @@ function getPageFromUrl(url: URL): string | null {
   return path;
 }
 
+let currentAbortController: AbortController | null = null;
+
 function renderPage() {
+  if (currentAbortController) {
+    currentAbortController.abort();
+  }
+  currentAbortController = new AbortController();
+  const signal = currentAbortController.signal;
+
   container.innerHTML = "";
   const url = new URL(window.location.href);
 
   const page = getPageFromUrl(url);
   if (page === "create") {
-    initCreateScreen(container);
+    initCreateScreen(container, signal);
   } else if (page === "about") {
-    initAboutScreen(container);
+    initAboutScreen(container, signal);
   } else if (page == "wheel" || (page == null && url.searchParams.has("config"))) {
-    void initWheelScreen(container);
+    void initWheelScreen(container, signal);
   } else {
-    initHomeScreen(container);
+    initHomeScreen(container, signal);
   }
 }
 

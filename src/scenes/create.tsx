@@ -2,7 +2,7 @@ import { TopBar } from "src/components/TopBar";
 import { getLatestBlockHash } from "src/random.ts";
 import type { HashRef, HashSource, WheelConfig } from "src/types";
 
-export function initCreateScreen(root: HTMLElement) {
+export function initCreateScreen(root: HTMLElement, _signal?: AbortSignal) {
   const params = new URLSearchParams(window.location.search);
   const initialHash = params.get("hash") || "";
 
@@ -61,7 +61,11 @@ export function initCreateScreen(root: HTMLElement) {
             <button
               type="button"
               onclick={async () => {
-                let hash: HashRef = { type: "historic", hash: hashInput.value.trim(), source: sourceSelect.value as HashSource };
+                let hash: HashRef = {
+                  type: "historic",
+                  hash: hashInput.value.trim(),
+                  source: sourceSelect.value as HashSource,
+                };
                 const content = contentInput.value.trim();
                 const lines = content
                   .split("\n")
@@ -85,7 +89,7 @@ export function initCreateScreen(root: HTMLElement) {
                 if (nextHashCheckbox.checked) {
                   hash = { type: "next", source: hash.source };
                 } else if (!hash.hash) {
-                  const latestHash = await getLatestBlockHash(hash.source!!);
+                  const latestHash = await getLatestBlockHash(hash.source!);
                   if (latestHash) hash.hash = latestHash;
                   else hash = { type: "current", source: hash.source };
                 }

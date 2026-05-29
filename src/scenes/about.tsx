@@ -3,7 +3,7 @@ import { getExampleUrl } from "src/example";
 import exampleCode from "src/example.ts?raw";
 import typesCode from "src/types.ts?raw";
 
-export function initAboutScreen(root: HTMLElement) {
+export function initAboutScreen(root: HTMLElement, _signal?: AbortSignal) {
   root.replaceChildren(
     <div class="page-layout">
       {TopBar()}

@@ -1,4 +1,4 @@
-import type {HashSource} from "src/types.ts";
+import type { HashSource } from "src/types.ts";
 // import moneroTs from "monero-ts";
 
 // const monero = await moneroTs.connectToDaemonRpc({server: "https://moneronode.org:18081", proxyToWorker: false});
