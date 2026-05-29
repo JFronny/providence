@@ -1,4 +1,7 @@
 import type {HashSource} from "src/types.ts";
+// import moneroTs from "monero-ts";
+
+// const monero = await moneroTs.connectToDaemonRpc({server: "https://moneronode.org:18081", proxyToWorker: false});
 
 /**
  * Get the latest block hash from a blockchain source
@@ -12,12 +15,13 @@ export async function getLatestBlockHash(source: HashSource): Promise<string | n
         const bitcoinResponse = await fetch("https://blockstream.info/api/blocks/tip/hash");
         return await bitcoinResponse.text();
       case "Monero":
-        const moneroResponse = await fetch("https://xmrchain.net/api/networkinfo"); // localmonero.co doesn't provide block hashes
+        const moneroResponse = await fetch("https://xmrchain.net/api/networkinfo");
         const moneroData = await moneroResponse.json();
         return moneroData.data.top_block_hash;
+        // return await monero.getBlockHash(await monero.getHeight());
     }
   } catch (error) {
-    console.error("Failed to fetch Bitcoin hash:", error);
+    console.error("Failed to fetch latest block hash:", error);
     return null;
   }
 }
@@ -30,20 +34,19 @@ export async function getLatestBlockHash(source: HashSource): Promise<string | n
  */
 export async function getNonce(blockHash: string, source: HashSource): Promise<number | null> {
   try {
-    const proxyUrl = "https://corsproxy.io/?";
     switch (source) {
       case "Bitcoin":
         const bitcoinResponse = await fetch(`https://blockstream.info/api/block/${blockHash}`);
         const bitcoinData = await bitcoinResponse.json();
         return bitcoinData.nonce;
       case "Monero":
-        const targetUrl = `https://localmonero.co/blocks/api/get_block_header/${blockHash}`;
-        const moneroResponse = await fetch(proxyUrl + encodeURIComponent(targetUrl)); // xmrchain.net doesn't provide nonces
+        const moneroResponse = await fetch(`https://xmrchain.net/api/rawblock/${blockHash}`);
         const moneroData = await moneroResponse.json();
-        return moneroData.block_header.nonce;
+        return moneroData.data.nonce;
+        // return (await monero.getBlockHeaderByHash(blockHash)).getNonce();
     }
   } catch (error) {
-    console.error("Failed to fetch Bitcoin nonce:", error);
+    console.error("Failed to fetch latest block nonce:", error);
     return null;
   }
 }
