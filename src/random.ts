@@ -18,7 +18,7 @@ export async function getLatestBlockHash(source: HashSource): Promise<string | n
         const moneroResponse = await fetch("https://xmrchain.net/api/networkinfo");
         const moneroData = await moneroResponse.json();
         return moneroData.data.top_block_hash;
-        // return await monero.getBlockHash(await monero.getHeight());
+      // return await monero.getBlockHash(await monero.getHeight());
     }
   } catch (error) {
     console.error("Failed to fetch latest block hash:", error);
@@ -43,7 +43,7 @@ export async function getNonce(blockHash: string, source: HashSource): Promise<n
         const moneroResponse = await fetch(`https://xmrchain.net/api/rawblock/${blockHash}`);
         const moneroData = await moneroResponse.json();
         return moneroData.data.nonce;
-        // return (await monero.getBlockHeaderByHash(blockHash)).getNonce();
+      // return (await monero.getBlockHeaderByHash(blockHash)).getNonce();
     }
   } catch (error) {
     console.error("Failed to fetch latest block nonce:", error);

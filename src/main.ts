@@ -1,9 +1,9 @@
 import "src/style.css";
 import { initAboutScreen } from "src/scenes/about.tsx";
 import { initCreateScreen } from "src/scenes/create.tsx";
+import { initDiceScreen } from "src/scenes/dice.tsx";
 import { initHomeScreen } from "src/scenes/home.tsx";
 import { initWheelScreen } from "src/scenes/wheel.tsx";
-import { initDiceScreen } from "src/scenes/dice.tsx";
 
 // Main entry point for the app
 // From here on, we rely purely on JSX-built elements

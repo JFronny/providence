@@ -10,7 +10,8 @@
     "lint": "oxlint",
     "lint:github": "oxlint --format=github",
     "fmt": "oxfmt",
-    "fmt:check": "oxfmt --check"
+    "fmt:check": "oxfmt --check",
+    "generate:dice": "node scripts/generate-dice-polyhedra.mjs"
   },
   "devDependencies": {
     "@types/node": "^25.8.0",
