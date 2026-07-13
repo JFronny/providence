@@ -11,6 +11,9 @@ export function initHomeScreen(root: HTMLElement, _signal?: AbortSignal) {
           <a class="btn" style="margin: 5px;" href={`${import.meta.env.BASE_URL}create`}>
             Create
           </a>
+          <a class="btn" style="margin: 5px;" href={`${import.meta.env.BASE_URL}dice`}>
+            Dice
+          </a>
           <a class="btn" style="margin: 5px;" href={`${import.meta.env.BASE_URL}about`}>
             About
           </a>

@@ -3,6 +3,7 @@ import { initAboutScreen } from "src/scenes/about.tsx";
 import { initCreateScreen } from "src/scenes/create.tsx";
 import { initHomeScreen } from "src/scenes/home.tsx";
 import { initWheelScreen } from "src/scenes/wheel.tsx";
+import { initDiceScreen } from "src/scenes/dice.tsx";
 
 // Main entry point for the app
 // From here on, we rely purely on JSX-built elements
@@ -42,6 +43,8 @@ function renderPage() {
     initCreateScreen(container, signal);
   } else if (page === "about") {
     initAboutScreen(container, signal);
+  } else if (page === "dice") {
+    void initDiceScreen(container, signal);
   } else if (page == "wheel" || (page == null && url.searchParams.has("config"))) {
     void initWheelScreen(container, signal);
   } else {

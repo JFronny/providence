@@ -9,6 +9,7 @@ export function TopBar() {
       </a>
       <div class="top-bar-links">
         <a href={`${import.meta.env.BASE_URL}create`}>Create</a>
+        <a href={`${import.meta.env.BASE_URL}dice`}>Dice</a>
         <a href={`${import.meta.env.BASE_URL}about`}>About</a>
         <a href="https://git.jfronny.dev/Johannes/providence">Source</a>
       </div>
