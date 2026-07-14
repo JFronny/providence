@@ -23,8 +23,9 @@ export class DiceView {
   diceArea: HTMLDivElement;
   resultsArea: HTMLDivElement;
   hashInfo: HTMLDivElement;
-  throwCount = 0;
   throwCountEl: HTMLDivElement;
+  private isThrowLocked = false;
+  private selectedCount = 0;
 
   private onAdd: ((type: DieType) => void) | null = null;
   private onRemove: ((index: number) => void) | null = null;
@@ -47,7 +48,7 @@ export class DiceView {
         {DIE_TYPES.map((type) => {
           const cfg = DICE_CONFIGS[type];
           return (
-            <button class="dice-picker-btn" style={`border-color: ${cfg.color}`} onclick={() => this.onAdd?.(type)}>
+            <button class="btn dice-picker-btn" style={`border-color: ${cfg.color}`} onclick={() => this.onAdd?.(type)}>
               {cfg.label}
             </button>
           );
@@ -59,7 +60,7 @@ export class DiceView {
       <div class="page-layout centered">
         {TopBar()}
         <div class="container">
-          <div class="card dice-page">
+          <div class="card dice-container">
             <h1>Dice</h1>
             {this.sourceSelect.element}
             <div class="form-group">
@@ -89,27 +90,42 @@ export class DiceView {
   }
 
   updateSelectedList(dice: DieConfig[]) {
-    this.throwButton.disabled = dice.length === 0;
+    this.selectedCount = dice.length;
+    this.throwButton.disabled = this.isThrowLocked || dice.length === 0;
     this.pickerList.replaceChildren(
       ...dice.map((die, i) => (
-        <span class="dice-selected-tag" style={`border-color: ${die.color}`} onclick={() => this.onRemove?.(i)}>
+        <button class="btn dice-selected-tag" type="button" style={`border-color: ${die.color}`} onclick={() => this.onRemove?.(i)}>
           {die.label} ✕
-        </span>
+        </button>
       )),
     );
   }
 
+  setThrowCount(count: number) {
+    this.throwCountEl.textContent = `Throws: ${count}`;
+  }
+
   setLoading(msg: string) {
-    this.throwButton.disabled = true;
+    this.setThrowLocked(true);
     this.resultsArea.replaceChildren();
     this.diceArea.replaceChildren(<h2>{msg}</h2>);
+  }
+
+  setThrowLocked(locked: boolean) {
+    this.isThrowLocked = locked;
+    this.throwButton.disabled = locked || this.selectedCount === 0;
   }
 
   showHashInfo(hash: string, source: HashSource) {
     this.hashInfo.textContent = `${source} Block Hash: ${hash}`;
   }
 
+  clearHashInfo() {
+    this.hashInfo.textContent = "";
+  }
+
   animateRoll(results: DieResult[]): Promise<void> {
+    this.setThrowLocked(true);
     this.resultsArea.replaceChildren();
     this.diceArea.replaceChildren();
 
@@ -149,7 +165,7 @@ export class DiceView {
           // Wait for transition to finish
           setTimeout(() => {
             this.showResults(results);
-            this.throwButton.disabled = false;
+            this.setThrowLocked(false);
             resolve();
           }, 2200);
         });

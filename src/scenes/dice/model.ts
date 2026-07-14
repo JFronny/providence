@@ -37,6 +37,7 @@ export function makeDieConfig(type: DieType): DieConfig {
 export class DiceModel {
   selectedDice: DieConfig[] = [];
   results: DieResult[] | null = null;
+  throwCount = 0;
 
   addDie(type: DieType) {
     this.selectedDice.push(makeDieConfig(type));
@@ -46,7 +47,10 @@ export class DiceModel {
     this.selectedDice.splice(index, 1);
   }
 
-  roll(seed: number): DieResult[] {
+  roll(baseSeed: number): DieResult[] {
+    const seed = baseSeed ^ this.throwCount ^ this.selectedDice.length;
+    this.throwCount++;
+
     const rand = mulberry32(seed);
     this.results = this.selectedDice.map((config) => ({
       config,
