@@ -19,9 +19,8 @@ const DIE_BUILDERS: Record<DieType, (value: number, random: ExtraSpin, color: st
 export class DiceView {
   throwButton: HTMLButtonElement;
   sourceSelect: HashSourceSelect;
-  pickerList: HTMLDivElement;
-  diceArea: HTMLDivElement;
-  resultsArea: HTMLDivElement;
+  diceGrid: HTMLDivElement;
+  resultsEl: HTMLDivElement;
   hashInfo: HTMLDivElement;
   throwCountEl: HTMLDivElement;
   private isThrowLocked = false;
@@ -37,9 +36,8 @@ export class DiceView {
       </button>
     ) as HTMLButtonElement;
     this.sourceSelect = new HashSourceSelect();
-    this.pickerList = (<div class="dice-selected-list"></div>) as HTMLDivElement;
-    this.diceArea = (<div class="dice-roll-area"></div>) as HTMLDivElement;
-    this.resultsArea = (<div class="dice-results"></div>) as HTMLDivElement;
+    this.diceGrid = (<div class="dice-grid"></div>) as HTMLDivElement;
+    this.resultsEl = (<div></div>) as HTMLDivElement;
     this.hashInfo = (<div class="block-hash"></div>) as HTMLDivElement;
     this.throwCountEl = (<div class="respin-count"></div>) as HTMLDivElement;
 
@@ -67,10 +65,9 @@ export class DiceView {
               <label class="form-label">Add Dice:</label>
               {pickerButtons}
             </div>
-            {this.pickerList}
+            {this.diceGrid}
+            {this.resultsEl}
             {this.throwButton}
-            {this.diceArea}
-            {this.resultsArea}
             {this.hashInfo}
             {this.throwCountEl}
           </div>
@@ -92,11 +89,19 @@ export class DiceView {
   updateSelectedList(dice: DieConfig[]) {
     this.selectedCount = dice.length;
     this.throwButton.disabled = this.isThrowLocked || dice.length === 0;
-    this.pickerList.replaceChildren(
+    this.diceGrid.replaceChildren(
       ...dice.map((die, i) => (
-        <button class="btn dice-selected-tag" type="button" style={`border-color: ${die.color}`} onclick={() => this.onRemove?.(i)}>
-          {die.label} ✕
-        </button>
+        <div class="dice-card dice-card--tag" style={`border-color: ${die.color}`}>
+          {DIE_BUILDERS[die.type](1, {rx: 3000, ry: 0}, die.color)}
+          <button
+            class="btn dice-card__remove"
+            type="button"
+            style={`border-color: ${die.color}; padding: 0.2em 0.4em; font-size: 0.8em;`}
+            onclick={() => this.onRemove?.(i)}
+          >
+            ✕
+          </button>
+        </div>
       )),
     );
   }
@@ -107,8 +112,7 @@ export class DiceView {
 
   setLoading(msg: string) {
     this.setThrowLocked(true);
-    this.resultsArea.replaceChildren();
-    this.diceArea.replaceChildren(<h2>{msg}</h2>);
+    this.diceGrid.replaceChildren(<h2>{msg}</h2>);
   }
 
   setThrowLocked(locked: boolean) {
@@ -126,16 +130,24 @@ export class DiceView {
 
   animateRoll(results: DieResult[]): Promise<void> {
     this.setThrowLocked(true);
-    this.resultsArea.replaceChildren();
-    this.diceArea.replaceChildren();
+    this.resultsEl.replaceChildren();
+    this.diceGrid.replaceChildren();
 
     const dieElements: HTMLElement[] = [];
+    const dieCards: HTMLElement[] = [];
 
     for (const result of results) {
       const builder = DIE_BUILDERS[result.config.type];
       const dieEl = builder(result.value, result.extraSpin, result.config.color);
       dieElements.push(dieEl);
-      this.diceArea.appendChild(dieEl);
+
+      const card = (
+        <div class="dice-card" style={`border-color: ${result.config.color}`}>
+          {dieEl}
+        </div>
+      ) as HTMLElement;
+      dieCards.push(card);
+      this.diceGrid.appendChild(card);
     }
 
     // Start with tumbling state
@@ -164,7 +176,7 @@ export class DiceView {
 
           // Wait for transition to finish
           setTimeout(() => {
-            this.showResults(results);
+            this.showResults(results, dieCards);
             this.setThrowLocked(false);
             resolve();
           }, 2200);
@@ -173,20 +185,20 @@ export class DiceView {
     });
   }
 
-  private showResults(results: DieResult[]) {
-    const total = results.reduce((sum, r) => sum + r.value, 0);
-    this.resultsArea.replaceChildren(
-      <div class="dice-results-inner">
-        <div class="dice-results-list">
-          {results.map((r) => (
-            <span class="dice-result-item" style={`border-color: ${r.config.color}`}>
-              {r.config.label}:{" "}
-              <strong>{r.config.type === "coin" ? (r.value === 1 ? "Heads" : "Tails") : String(r.value)}</strong>
-            </span>
-          ))}
-        </div>
-        {results.length > 1 ? <div class="dice-results-total">Total: {String(total)}</div> : null}
-      </div>,
-    );
+  private showResults(results: DieResult[], dieCards: HTMLElement[]) {
+    if (results.length > 1) {
+      this.resultsEl.replaceChildren(<div class="dice-results-total">
+        Total: {String(results.reduce((sum, r) => sum + r.value, 0))}
+      </div>);
+    } else {
+      this.resultsEl.replaceChildren();
+    }
+
+    for (let i = 0; i < results.length; i++) {
+      const r = results[i]
+      dieCards[i].appendChild(<div class="die-card-value">
+        {r.config.type === "coin" ? (r.value === 1 ? "Heads" : "Tails") : String(r.value)}
+      </div>)
+    }
   }
 }

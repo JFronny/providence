@@ -200,7 +200,7 @@ const D6_ROTATIONS: Record<number, string> = {
 };
 
 export function createD6(value: number, extraSpin: ExtraSpin): HTMLElement {
-  const size = 80;
+  const size = 60;
   const half = size / 2;
   const faceTransforms: Record<number, string> = {
     1: `rotateY(0deg) translateZ(${half}px)`,
