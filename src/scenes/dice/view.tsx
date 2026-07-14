@@ -1,5 +1,5 @@
 import { TopBar } from "src/components/TopBar";
-import { createCoin, createD4, createD6, createD8, createD10, createD12, createD20 } from "src/scenes/dice/dice-shapes";
+import { createCoin, createD6, createPolyhedron } from "src/scenes/dice/dice-shapes";
 import { DICE_CONFIGS, type DieConfig, type DieResult, type DieType } from "src/scenes/dice/model";
 import type { HashSource } from "src/types";
 
@@ -7,12 +7,12 @@ const DIE_TYPES: DieType[] = ["coin", "d4", "d6", "d8", "d10", "d12", "d20"];
 
 const DIE_BUILDERS: Record<DieType, (value: number, color: string) => HTMLElement> = {
   coin: (v) => createCoin(v),
-  d4: (v, c) => createD4(v, c),
+  d4: (v, c) => createPolyhedron("d4", v, c),
   d6: (v) => createD6(v),
-  d8: (v, c) => createD8(v, c),
-  d10: (v, c) => createD10(v, c),
-  d12: (v, c) => createD12(v, c),
-  d20: (v, c) => createD20(v, c),
+  d8: (v, c) => createPolyhedron("d8", v, c),
+  d10: (v, c) => createPolyhedron("d10", v, c),
+  d12: (v, c) => createPolyhedron("d12", v, c),
+  d20: (v, c) => createPolyhedron("d20", v, c),
 };
 
 export class DiceView {

@@ -6,7 +6,20 @@
  * plane in 3D, so adjacent edges meet instead of relying on hand-tuned tilts.
  */
 import "src/scenes/dice/dice-shapes.css";
-import { POLYHEDRA, type Polyhedron, type Vec3 } from "src/scenes/dice/dice-polyhedra.generated";
+import { POLYHEDRA } from "src/scenes/dice/dice-polyhedra.ts";
+import {
+  average,
+  cross,
+  dot,
+  add,
+  EPSILON,
+  normalize,
+  scale,
+  subtract,
+  type Vec3,
+  length,
+  type Polyhedron,
+} from "src/scenes/dice/math.ts";
 
 type FaceGeometry = {
   vertices: Vec3[];
@@ -14,40 +27,6 @@ type FaceGeometry = {
   xAxis: Vec3;
   yAxis: Vec3;
 };
-
-const EPSILON = 1e-6;
-
-function add(a: Vec3, b: Vec3): Vec3 {
-  return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
-}
-
-function subtract(a: Vec3, b: Vec3): Vec3 {
-  return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-}
-
-function scale(v: Vec3, factor: number): Vec3 {
-  return [v[0] * factor, v[1] * factor, v[2] * factor];
-}
-
-function dot(a: Vec3, b: Vec3): number {
-  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-}
-
-function cross(a: Vec3, b: Vec3): Vec3 {
-  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-}
-
-function length(v: Vec3): number {
-  return Math.sqrt(dot(v, v));
-}
-
-function normalize(v: Vec3): Vec3 {
-  return scale(v, 1 / length(v));
-}
-
-function average(points: Vec3[]): Vec3 {
-  return scale(points.reduce(add, [0, 0, 0] as Vec3), 1 / points.length);
-}
 
 function formatNumber(value: number): string {
   const rounded = Math.abs(value) < 1e-10 ? 0 : value;
@@ -274,31 +253,11 @@ export function createCoin(value: number): HTMLElement {
   return wrap("die-container-coin", "die-inner-coin", `rotateY(${extraY + finalY}deg)`, [front, back]);
 }
 
-function createPolyhedron(dieClass: keyof typeof POLYHEDRA, value: number, color: string): HTMLElement {
+export function createPolyhedron(dieClass: keyof typeof POLYHEDRA, value: number, color: string): HTMLElement {
   const polyhedron = POLYHEDRA[dieClass];
   const geometries = polyhedron.faces.map((indices) => geometryForFace(polyhedron, indices));
   const faces = geometries.map((geometry, index) => polyFace(dieClass, geometry, color, String(index + 1)));
   const { rx, ry } = extraSpin();
   const final = `rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(0deg) ${landingMatrix(geometries[value - 1])}`;
   return wrap(`die-container-${dieClass}`, `die-inner-${dieClass}`, final, faces);
-}
-
-export function createD4(value: number, color: string): HTMLElement {
-  return createPolyhedron("d4", value, color);
-}
-
-export function createD8(value: number, color: string): HTMLElement {
-  return createPolyhedron("d8", value, color);
-}
-
-export function createD10(value: number, color: string): HTMLElement {
-  return createPolyhedron("d10", value, color);
-}
-
-export function createD12(value: number, color: string): HTMLElement {
-  return createPolyhedron("d12", value, color);
-}
-
-export function createD20(value: number, color: string): HTMLElement {
-  return createPolyhedron("d20", value, color);
 }

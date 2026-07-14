@@ -1,48 +1,29 @@
-import { readFile, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import {
+  average,
+  cross,
+  dot,
+  EPSILON,
+  normalize,
+  scale,
+  subtract,
+  type Vec3,
+  length,
+  type Polyhedron,
+} from "src/scenes/dice/math.ts";
 
-const EPSILON = 1e-6;
 const POLY_RADIUS = 40;
 const D10_HEIGHT_SCALE = 1.2;
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const outputPath = resolve(root, "src/scenes/dice/dice-polyhedra.generated.ts");
+export type PolyhedronDie = "d4" | "d8" | "d10" | "d12" | "d20";
 
-function add(a, b) {
-  return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
-}
-
-function subtract(a, b) {
-  return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-}
-
-function scale(vector, factor) {
-  return [vector[0] * factor, vector[1] * factor, vector[2] * factor];
-}
-
-function dot(a, b) {
-  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-}
-
-function cross(a, b) {
-  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-}
-
-function length(vector) {
-  return Math.sqrt(dot(vector, vector));
-}
-
-function normalize(vector) {
-  return scale(vector, 1 / length(vector));
-}
-
-function average(points) {
-  return scale(points.reduce(add, [0, 0, 0]), 1 / points.length);
-}
-
-function convexFaces(vertices) {
-  const faceMap = new Map();
+function convexFaces(vertices: Vec3[]): number[][] {
+  const faceMap: Map<
+    string,
+    {
+      indices: number[];
+      normal: Vec3;
+    }
+  > = new Map();
 
   for (let i = 0; i < vertices.length - 2; i++) {
     for (let j = i + 1; j < vertices.length - 1; j++) {
@@ -88,13 +69,13 @@ function convexFaces(vertices) {
   });
 }
 
-function scaledPolyhedron(vertices) {
+function scaledPolyhedron(vertices: Vec3[]): Polyhedron {
   const radius = Math.max(...vertices.map(length));
   const scaledVertices = vertices.map((vertex) => scale(vertex, POLY_RADIUS / radius));
   return { vertices: scaledVertices, faces: convexFaces(scaledVertices) };
 }
 
-function dualVertices(polyhedron) {
+function dualVertices(polyhedron: Polyhedron): Vec3[] {
   return polyhedron.faces.map((indices) => {
     const points = indices.map((index) => polyhedron.vertices[index]);
     const normal = normalize(cross(subtract(points[1], points[0]), subtract(points[2], points[0])));
@@ -103,7 +84,7 @@ function dualVertices(polyhedron) {
   });
 }
 
-function makeTetrahedron() {
+function makeTetrahedron(): Polyhedron {
   return scaledPolyhedron([
     [1, 1, 1],
     [-1, -1, 1],
@@ -112,7 +93,7 @@ function makeTetrahedron() {
   ]);
 }
 
-function makeOctahedron() {
+function makeOctahedron(): Polyhedron {
   return scaledPolyhedron([
     [1, 0, 0],
     [-1, 0, 0],
@@ -123,7 +104,7 @@ function makeOctahedron() {
   ]);
 }
 
-function makeIcosahedron() {
+function makeIcosahedron(): Polyhedron {
   const phi = (1 + Math.sqrt(5)) / 2;
   return scaledPolyhedron([
     [0, 1, phi],
@@ -141,16 +122,16 @@ function makeIcosahedron() {
   ]);
 }
 
-function makeDodecahedron() {
+function makeDodecahedron(): Polyhedron {
   return scaledPolyhedron(dualVertices(makeIcosahedron()));
 }
 
-function makePentagonalTrapezohedron() {
+function makePentagonalTrapezohedron(): Polyhedron {
   const sides = 5;
   const radius = 1;
   const halfHeight =
     radius * D10_HEIGHT_SCALE * Math.sqrt(Math.sin(Math.PI / sides) ** 2 - Math.sin(Math.PI / (2 * sides)) ** 2);
-  const antiprismVertices = [];
+  const antiprismVertices: Vec3[] = [];
 
   for (let i = 0; i < sides; i++) {
     const angle = (2 * Math.PI * i) / sides;
@@ -168,20 +149,24 @@ function makePentagonalTrapezohedron() {
   return scaledPolyhedron(dualVertices(antiprism));
 }
 
-function cleanNumber(value) {
+function cleanNumber(value: number): number {
   const rounded = Math.abs(value) < 1e-12 ? 0 : Number(value.toFixed(10));
   return Object.is(rounded, -0) ? 0 : rounded;
 }
 
-function cleanPolyhedron(polyhedron) {
+function cleanVertex(value: Vec3): Vec3 {
+  return [cleanNumber(value[0]), cleanNumber(value[1]), cleanNumber(value[2])];
+}
+
+function cleanPolyhedron(polyhedron: Polyhedron): Polyhedron {
   return {
-    vertices: polyhedron.vertices.map((vertex) => vertex.map(cleanNumber)),
+    vertices: polyhedron.vertices.map(cleanVertex),
     faces: polyhedron.faces,
   };
 }
 
-function generateSource() {
-  const polyhedra = {
+function generatePolyhedra(): Record<PolyhedronDie, Polyhedron> {
+  const polyhedra: Record<PolyhedronDie, Polyhedron> = {
     d4: cleanPolyhedron(makeTetrahedron()),
     d8: cleanPolyhedron(makeOctahedron()),
     d10: cleanPolyhedron(makePentagonalTrapezohedron()),
@@ -191,13 +176,11 @@ function generateSource() {
 
   const expectedFaceCounts = { d4: 4, d8: 8, d10: 10, d12: 12, d20: 20 };
   for (const [die, expected] of Object.entries(expectedFaceCounts)) {
-    const actual = polyhedra[die].faces.length;
+    const actual = polyhedra[die as PolyhedronDie].faces.length;
     if (actual !== expected) throw new Error(`${die} generated ${actual} faces; expected ${expected}`);
   }
 
-  return `/**\n * Generated by scripts/generate-dice-polyhedra.mjs.\n * Do not edit this file directly; run \`pnpm generate:dice\`.\n */\n\nexport type Vec3 = readonly [number, number, number];\n\nexport type Polyhedron = {\n  vertices: Vec3[];\n  faces: number[][];\n};\n\nexport type PolyhedronDie = \"d4\" | \"d8\" | \"d10\" | \"d12\" | \"d20\";\n\nexport const POLYHEDRA: Record<PolyhedronDie, Polyhedron> = ${JSON.stringify(polyhedra, null, 2)};\n`;
+  return polyhedra;
 }
 
-const source = generateSource();
-await writeFile(outputPath, source);
-console.log(`Generated ${outputPath}`);
+export const POLYHEDRA: Record<PolyhedronDie, Polyhedron> = generatePolyhedra();
