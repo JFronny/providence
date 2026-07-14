@@ -19,6 +19,7 @@ export async function initDiceScreen(root: HTMLElement, signal?: AbortSignal) {
       if (model.selectedDice.length === 0) return;
 
       view.throwCount++;
+      view.throwCountEl.textContent = `Throw count: ${view.throwCount}`;
       const source = view.hashSource;
       view.setLoading("Fetching block hash...");
 
@@ -42,7 +43,6 @@ export async function initDiceScreen(root: HTMLElement, signal?: AbortSignal) {
       view.showHashInfo(hash, source);
       const results = model.roll(nonce + view.throwCount - 1);
       await view.animateRoll(results);
-      view.throwCountEl.textContent = `Throw count: ${view.throwCount}`;
     },
   });
 

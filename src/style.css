@@ -312,8 +312,9 @@ button:has(input:disabled),
 }
 
 .spin-button {
-  margin: 20px 0;
-  font-size: 1.5em;
+  margin: 1.5em 0;
+  font-size: 1.2em;
+  padding: 0.6em 2em;
 }
 
 .result-dialog {
@@ -441,12 +442,6 @@ pre {
   opacity: 0.7;
 }
 
-.dice-throw-btn {
-  font-size: 1.2em;
-  padding: 0.6em 2em;
-  margin-bottom: 1.5em;
-}
-
 .dice-source-select {
   max-width: 200px;
 }
@@ -483,10 +478,4 @@ pre {
   margin-top: 0.8em;
   font-size: 1.3em;
   font-weight: bold;
-}
-
-.dice-throw-count {
-  margin-top: 1em;
-  font-size: 0.85em;
-  opacity: 0.7;
 }

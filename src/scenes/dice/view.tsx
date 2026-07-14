@@ -1,3 +1,4 @@
+import { HashSourceSelect } from "src/components/HashSourceSelect.tsx";
 import { TopBar } from "src/components/TopBar";
 import { createCoin, createD6, createPolyhedron } from "src/scenes/dice/dice-shapes";
 import { DICE_CONFIGS, type DieConfig, type DieResult, type DieType, type ExtraSpin } from "src/scenes/dice/model";
@@ -17,7 +18,7 @@ const DIE_BUILDERS: Record<DieType, (value: number, random: ExtraSpin, color: st
 
 export class DiceView {
   throwButton: HTMLButtonElement;
-  sourceSelect: HTMLSelectElement;
+  sourceSelect: HashSourceSelect;
   pickerList: HTMLDivElement;
   diceArea: HTMLDivElement;
   resultsArea: HTMLDivElement;
@@ -30,21 +31,16 @@ export class DiceView {
 
   constructor(root: HTMLElement) {
     this.throwButton = (
-      <button class="dice-throw-btn" disabled>
-        🎲 Throw
+      <button class="spin-button" disabled>
+        Throw
       </button>
     ) as HTMLButtonElement;
-    this.sourceSelect = (
-      <select class="form-input dice-source-select">
-        <option value="Bitcoin">Bitcoin</option>
-        <option value="Monero">Monero</option>
-      </select>
-    ) as HTMLSelectElement;
+    this.sourceSelect = new HashSourceSelect();
     this.pickerList = (<div class="dice-selected-list"></div>) as HTMLDivElement;
     this.diceArea = (<div class="dice-roll-area"></div>) as HTMLDivElement;
     this.resultsArea = (<div class="dice-results"></div>) as HTMLDivElement;
     this.hashInfo = (<div class="block-hash"></div>) as HTMLDivElement;
-    this.throwCountEl = (<div class="dice-throw-count"></div>) as HTMLDivElement;
+    this.throwCountEl = (<div class="respin-count"></div>) as HTMLDivElement;
 
     const pickerButtons = (
       <div class="dice-picker-buttons">
@@ -65,10 +61,7 @@ export class DiceView {
         <div class="container">
           <div class="card dice-page">
             <h1>Dice</h1>
-            <div class="form-group">
-              <label class="form-label">Hash Source:</label>
-              {this.sourceSelect}
-            </div>
+            {this.sourceSelect.element}
             <div class="form-group">
               <label class="form-label">Add Dice:</label>
               {pickerButtons}
@@ -86,7 +79,7 @@ export class DiceView {
   }
 
   get hashSource(): HashSource {
-    return this.sourceSelect.value as HashSource;
+    return this.sourceSelect.value;
   }
 
   bind(callbacks: { onThrow: () => void; onAdd: (type: DieType) => void; onRemove: (index: number) => void }) {
@@ -108,8 +101,8 @@ export class DiceView {
 
   setLoading(msg: string) {
     this.throwButton.disabled = true;
-    this.resultsArea.replaceChildren(<span>{msg}</span>);
-    this.diceArea.replaceChildren();
+    this.resultsArea.replaceChildren();
+    this.diceArea.replaceChildren(<h2>{msg}</h2>);
   }
 
   showHashInfo(hash: string, source: HashSource) {
