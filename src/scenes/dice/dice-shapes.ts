@@ -237,18 +237,16 @@ export function createD6(value: number): HTMLElement {
 }
 
 export function createCoin(value: number): HTMLElement {
-  const label = value === 1 ? "H" : "T";
-  const backLabel = value === 1 ? "T" : "H";
   const extraY = (Math.floor(Math.random() * 4) + 3) * 360;
   const finalY = value === 1 ? 0 : 180;
 
   const front = document.createElement("div");
   front.className = "die-face die-face-coin-front";
-  front.textContent = label;
+  front.textContent = "H";
 
   const back = document.createElement("div");
   back.className = "die-face die-face-coin-back";
-  back.textContent = backLabel;
+  back.textContent = "T";
 
   return wrap("die-container-coin", "die-inner-coin", `rotateY(${extraY + finalY}deg)`, [front, back]);
 }
