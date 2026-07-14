@@ -37,6 +37,8 @@ function addChildren(element: HTMLElement, children?: ComponentChildren) {
     return;
   } else if (typeof children === "string") {
     element.appendChild(document.createTextNode(children));
+  } else if (children === null) {
+    // Do nothing
   } else {
     element.appendChild(children);
   }

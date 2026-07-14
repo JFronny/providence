@@ -1,18 +1,18 @@
 import { TopBar } from "src/components/TopBar";
 import { createCoin, createD6, createPolyhedron } from "src/scenes/dice/dice-shapes";
-import { DICE_CONFIGS, type DieConfig, type DieResult, type DieType } from "src/scenes/dice/model";
+import { DICE_CONFIGS, type DieConfig, type DieResult, type DieType, type ExtraSpin } from "src/scenes/dice/model";
 import type { HashSource } from "src/types";
 
 const DIE_TYPES: DieType[] = ["coin", "d4", "d6", "d8", "d10", "d12", "d20"];
 
-const DIE_BUILDERS: Record<DieType, (value: number, color: string) => HTMLElement> = {
-  coin: (v) => createCoin(v),
-  d4: (v, c) => createPolyhedron("d4", v, c),
-  d6: (v) => createD6(v),
-  d8: (v, c) => createPolyhedron("d8", v, c),
-  d10: (v, c) => createPolyhedron("d10", v, c),
-  d12: (v, c) => createPolyhedron("d12", v, c),
-  d20: (v, c) => createPolyhedron("d20", v, c),
+const DIE_BUILDERS: Record<DieType, (value: number, random: ExtraSpin, color: string) => HTMLElement> = {
+  coin: (v, r) => createCoin(v, r),
+  d4: (v, r, c) => createPolyhedron(v, r, "d4", c),
+  d6: (v, r) => createD6(v, r),
+  d8: (v, r, c) => createPolyhedron(v, r, "d8", c),
+  d10: (v, r, c) => createPolyhedron(v, r, "d10", c),
+  d12: (v, r, c) => createPolyhedron(v, r, "d12", c),
+  d20: (v, r, c) => createPolyhedron(v, r, "d20", c),
 };
 
 export class DiceView {
@@ -124,7 +124,7 @@ export class DiceView {
 
     for (const result of results) {
       const builder = DIE_BUILDERS[result.config.type];
-      const dieEl = builder(result.value, result.config.color);
+      const dieEl = builder(result.value, result.extraSpin, result.config.color);
       dieElements.push(dieEl);
       this.diceArea.appendChild(dieEl);
     }
@@ -149,8 +149,7 @@ export class DiceView {
             const inner = el.querySelector(".die-inner") as HTMLElement;
             if (inner) {
               inner.classList.add("die-landing");
-              const finalTransform = inner.dataset.final!;
-              inner.style.transform = finalTransform;
+              inner.style.transform = inner.dataset.final!;
             }
           }
 

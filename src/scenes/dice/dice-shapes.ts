@@ -20,6 +20,7 @@ import {
   length,
   type Polyhedron,
 } from "src/scenes/dice/math.ts";
+import type { ExtraSpin } from "src/scenes/dice/model.ts";
 
 type FaceGeometry = {
   vertices: Vec3[];
@@ -155,13 +156,6 @@ function wrap(containerClass: string, innerClass: string, finalTransform: string
   return container;
 }
 
-function extraSpin() {
-  return {
-    rx: (Math.floor(Math.random() * 3) + 2) * 360,
-    ry: (Math.floor(Math.random() * 3) + 2) * 360,
-  };
-}
-
 const PIP_LAYOUTS: Record<number, [number, number][]> = {
   1: [[50, 50]],
   2: [
@@ -205,7 +199,7 @@ const D6_ROTATIONS: Record<number, string> = {
   6: "rotateX(180deg) rotateY(0deg)",
 };
 
-export function createD6(value: number): HTMLElement {
+export function createD6(value: number, extraSpin: ExtraSpin): HTMLElement {
   const size = 80;
   const half = size / 2;
   const faceTransforms: Record<number, string> = {
@@ -232,12 +226,15 @@ export function createD6(value: number): HTMLElement {
     faces.push(element);
   }
 
-  const { rx, ry } = extraSpin();
-  return wrap("die-container-d6", "die-inner-d6", `rotateX(${rx}deg) rotateY(${ry}deg) ${D6_ROTATIONS[value]}`, faces);
+  return wrap(
+    "die-container-d6",
+    "die-inner-d6",
+    `rotateX(${extraSpin.rx}deg) rotateY(${extraSpin.ry}deg) ${D6_ROTATIONS[value]}`,
+    faces,
+  );
 }
 
-export function createCoin(value: number): HTMLElement {
-  const extraY = (Math.floor(Math.random() * 4) + 3) * 360;
+export function createCoin(value: number, extraSpin: ExtraSpin): HTMLElement {
   const finalY = value === 1 ? 0 : 180;
 
   const front = document.createElement("div");
@@ -248,14 +245,18 @@ export function createCoin(value: number): HTMLElement {
   back.className = "die-face die-face-coin-back";
   back.textContent = "T";
 
-  return wrap("die-container-coin", "die-inner-coin", `rotateY(${extraY + finalY}deg)`, [front, back]);
+  return wrap("die-container-coin", "die-inner-coin", `rotateY(${extraSpin.ry + finalY}deg)`, [front, back]);
 }
 
-export function createPolyhedron(dieClass: keyof typeof POLYHEDRA, value: number, color: string): HTMLElement {
+export function createPolyhedron(
+  value: number,
+  extraSpin: ExtraSpin,
+  dieClass: keyof typeof POLYHEDRA,
+  color: string,
+): HTMLElement {
   const polyhedron = POLYHEDRA[dieClass];
   const geometries = polyhedron.faces.map((indices) => geometryForFace(polyhedron, indices));
   const faces = geometries.map((geometry, index) => polyFace(dieClass, geometry, color, String(index + 1)));
-  const { rx, ry } = extraSpin();
-  const final = `rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(0deg) ${landingMatrix(geometries[value - 1])}`;
+  const final = `rotateX(${extraSpin.rx}deg) rotateY(${extraSpin.ry}deg) rotateZ(0deg) ${landingMatrix(geometries[value - 1])}`;
   return wrap(`die-container-${dieClass}`, `die-inner-${dieClass}`, final, faces);
 }

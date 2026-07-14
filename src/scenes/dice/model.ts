@@ -12,6 +12,12 @@ export interface DieConfig {
 export interface DieResult {
   config: DieConfig;
   value: number;
+  extraSpin: ExtraSpin;
+}
+
+export interface ExtraSpin {
+  rx: number;
+  ry: number;
 }
 
 export const DICE_CONFIGS: Record<DieType, Omit<DieConfig, "type">> = {
@@ -45,6 +51,10 @@ export class DiceModel {
     this.results = this.selectedDice.map((config) => ({
       config,
       value: Math.floor(rand() * config.sides) + 1,
+      extraSpin: {
+        rx: (Math.floor(rand() * 3) + 2) * 360,
+        ry: (Math.floor(rand() * 3) + 2) * 360,
+      },
     }));
     return this.results;
   }
