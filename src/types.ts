@@ -33,6 +33,11 @@ export type HashSource = "Bitcoin" | "Monero" | "NIST";
 export const DefaultHashSource: HashSource = "Bitcoin";
 
 /**
+ * Used internally
+ */
+export type RandomSource = HashSource | "Collective";
+
+/**
  * A reference to a hash.
  * @prop type type of hash reference, can be "historic", "current", or "next"
  *            If "historic", the hash is provided as part of the reference.
@@ -44,7 +49,14 @@ export const DefaultHashSource: HashSource = "Bitcoin";
 export type HashRef =
   | { type: "historic"; hash: string; source?: HashSource }
   | { type: "current"; source?: HashSource }
-  | { type: "next"; source?: HashSource };
+  | { type: "next"; source?: HashSource }
+  | {
+      type: "collective";
+      /** Locked commitments, sorted hex; absent/empty = still collecting */
+      commits?: string[];
+      /** Matching opens (hex) once known; verified against commits */
+      opens?: string[];
+    };
 
 /**
  * A complete wheel configuration.

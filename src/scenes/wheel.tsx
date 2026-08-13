@@ -1,8 +1,9 @@
+import { runCollectiveCeremony } from "src/scenes/collectiveCeremony.tsx";
 import { cyrb128, getLatestBlockHash, getNonce, pickColor } from "src/random";
 import { message } from "src/scenes/message.tsx";
 import { WheelModel } from "src/scenes/wheel/model";
 import { WheelView } from "src/scenes/wheel/view";
-import { DefaultHashSource, type HashRef, type HashSource, type WheelConfig } from "src/types";
+import { DefaultHashSource, type HashRef, type HashSource, type RandomSource, type WheelConfig } from "src/types";
 
 type ResolvedHash = { hash: string; redirect: boolean };
 
@@ -42,7 +43,7 @@ export async function resolveHash(
           return getLatest(ref.source || DefaultHashSource, message, signal);
         case "historic":
           return { hash: ref.hash, redirect: false };
-        case "next":
+        case "next": {
           message("Waiting for next block hash");
           const startHash = await getLatestBlockHash(ref.source || DefaultHashSource);
           if (startHash == null) {
@@ -64,8 +65,17 @@ export async function resolveHash(
               console.log("Did not get new block hash, retrying...");
             }
           }
+        }
+        case "collective":
+          message("Collective hash is not a beacon source");
+          return null;
       }
   }
+}
+
+function hashSourceOf(ref: HashRef): HashSource {
+  if (ref.type === "collective") return DefaultHashSource;
+  return ref.source || DefaultHashSource;
 }
 
 export async function initWheelScreen(root: HTMLElement, signal?: AbortSignal) {
@@ -102,6 +112,18 @@ export async function initWheelScreen(root: HTMLElement, signal?: AbortSignal) {
 
   console.log("Normalized config:", config);
 
+  if (config.hash?.type === "collective") {
+    await runCollectiveCeremony(
+      root,
+      config,
+      ({ nonce, hashLabel }) => {
+        runBeaconWheel(root, config, nonce, hashLabel, "Collective", signal);
+      },
+      signal,
+    );
+    return;
+  }
+
   const resolved = await resolveHash(
     config.hash,
     (msg) => {
@@ -112,21 +134,32 @@ export async function initWheelScreen(root: HTMLElement, signal?: AbortSignal) {
   if (resolved == null || signal?.aborted) return;
   if (resolved.redirect) {
     console.log("Redirecting with resolved hash:", resolved.hash);
-    config.hash = { hash: resolved.hash, type: "historic", source: config.hash.source };
+    config.hash = { hash: resolved.hash, type: "historic", source: hashSourceOf(config.hash) };
     const newConfigStr = encodeURIComponent(JSON.stringify(config));
     window.location.href = `${import.meta.env.BASE_URL}?config=${newConfigStr}`;
     return;
   }
 
-  const nonce = await getNonce(resolved.hash, config.hash.source || DefaultHashSource);
+  const nonce = await getNonce(resolved.hash, hashSourceOf(config.hash));
   if (signal?.aborted) return;
   if (!nonce) {
     message(root, "Failed to fetch nonce");
     return;
   }
 
+  runBeaconWheel(root, config, nonce, resolved.hash, hashSourceOf(config.hash), signal);
+}
+
+function runBeaconWheel(
+  root: HTMLElement,
+  config: WheelConfig,
+  nonce: number,
+  hashLabel: string,
+  source: RandomSource,
+  signal?: AbortSignal,
+) {
   const model = new WheelModel(config, nonce);
-  const view = new WheelView(root, resolved.hash, config.hash.source || DefaultHashSource);
+  const view = new WheelView(root, hashLabel, source);
 
   view.bind(() => {
     model.spin();
@@ -152,7 +185,6 @@ export async function initWheelScreen(root: HTMLElement, signal?: AbortSignal) {
             ? `${import.meta.env.BASE_URL}?config=${encodeURIComponent(JSON.stringify(removedConfig))}`
             : null;
         view.showResult(winner, removedUrl, config.actions, () => {
-          // Resume idle spin
           update();
         });
         cancelAnimationFrame(animationId);
@@ -162,7 +194,6 @@ export async function initWheelScreen(root: HTMLElement, signal?: AbortSignal) {
 
     const currentSector = model.getCurrentSector();
     if (currentSector) {
-      // Find index of current sector
       const index = model.sectors.indexOf(currentSector);
       if (index !== -1 && index !== lastSectorIndex) {
         if (model.isSpinning) view.playTick();
@@ -174,6 +205,5 @@ export async function initWheelScreen(root: HTMLElement, signal?: AbortSignal) {
     animationId = requestAnimationFrame(update);
   }
 
-  // Start
   update();
 }

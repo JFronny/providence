@@ -1,6 +1,6 @@
 import { TopBar } from "src/components/TopBar";
 import { WheelModel, type WheelSector } from "src/scenes/wheel/model";
-import type { HashSource, WheelAction } from "src/types";
+import type { RandomSource, WheelAction } from "src/types";
 
 export class WheelView {
   canvas: HTMLCanvasElement;
@@ -10,7 +10,7 @@ export class WheelView {
   audioCtx: AudioContext;
   respinCount: HTMLDivElement;
 
-  constructor(root: HTMLElement, blockHash: string, hashSource: HashSource) {
+  constructor(root: HTMLElement, blockHash: string, hashSource: RandomSource) {
     // Setup UI
     this.canvas = (<canvas width="500" height="500" class="wheel-canvas"></canvas>) as HTMLCanvasElement;
     this.spinButton = (

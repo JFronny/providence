@@ -92,7 +92,7 @@ export class DiceView {
     this.diceGrid.replaceChildren(
       ...dice.map((die, i) => (
         <div class="dice-card dice-card--tag" style={`border-color: ${die.color}`}>
-          {DIE_BUILDERS[die.type](1, {rx: 3000, ry: 0}, die.color)}
+          {DIE_BUILDERS[die.type](1, { rx: 3000, ry: 0 }, die.color)}
           <button
             class="btn dice-card__remove"
             type="button"
@@ -187,18 +187,20 @@ export class DiceView {
 
   private showResults(results: DieResult[], dieCards: HTMLElement[]) {
     if (results.length > 1) {
-      this.resultsEl.replaceChildren(<div class="dice-results-total">
-        Total: {String(results.reduce((sum, r) => sum + r.value, 0))}
-      </div>);
+      this.resultsEl.replaceChildren(
+        <div class="dice-results-total">Total: {String(results.reduce((sum, r) => sum + r.value, 0))}</div>,
+      );
     } else {
       this.resultsEl.replaceChildren();
     }
 
     for (let i = 0; i < results.length; i++) {
-      const r = results[i]
-      dieCards[i].appendChild(<div class="die-card-value">
-        {r.config.type === "coin" ? (r.value === 1 ? "Heads" : "Tails") : String(r.value)}
-      </div>)
+      const r = results[i];
+      dieCards[i].appendChild(
+        <div class="die-card-value">
+          {r.config.type === "coin" ? (r.value === 1 ? "Heads" : "Tails") : String(r.value)}
+        </div>,
+      );
     }
   }
 }

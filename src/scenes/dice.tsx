@@ -13,7 +13,9 @@ export async function initDiceScreen(root: HTMLElement, signal?: AbortSignal) {
     view.clearHashInfo();
   });
 
-  async function resolveBaseSeed(source: HashSource): Promise<{ source: HashSource; hash: string; baseSeed: number } | null> {
+  async function resolveBaseSeed(
+    source: HashSource,
+  ): Promise<{ source: HashSource; hash: string; baseSeed: number } | null> {
     if (cachedRoll?.source === source) return cachedRoll;
 
     view.setLoading("Fetching block hash...");

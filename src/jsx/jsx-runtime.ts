@@ -23,6 +23,12 @@ export function jsx(
     } else if (k.startsWith("on")) {
       if (typeof config[k] !== "function") console.warn(`JSX event handler ${k} is not a function`);
       el.addEventListener(k.slice(2).toLowerCase(), config[k] as any);
+    } else if (k == "disabled") {
+      if (config[k]) {
+        el.setAttribute("disabled", "");
+      } else {
+        el.removeAttribute("disabled");
+      }
     } else {
       el.setAttribute(k, config[k]);
     }

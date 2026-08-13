@@ -28,6 +28,41 @@ export function initCreateScreen(root: HTMLElement, _signal?: AbortSignal) {
       }}
     />
   ) as HTMLInputElement;
+  const beaconControls = (
+    <div>
+      {sourceSelect.element}
+      <div class="form-group">
+        <label class="form-label">
+          {nextHashCheckbox}
+          Use next hash
+        </label>
+      </div>
+      {blockHashGroup}
+    </div>
+  ) as HTMLDivElement;
+
+  const modeSelect = (
+    <select class="form-input">
+      <option value="beacon">Public beacon</option>
+      <option value="collective">Group seals</option>
+    </select>
+  ) as HTMLSelectElement;
+
+  const modeHelp = (
+    <p class="form-hint">
+      Group seals: each phone seals secret randomness, then you pass one link around (commits, then reveals).<br/>
+      Fair if at least one person is honest. Someone can still abort and force a retry after seeing opens.
+    </p>
+  ) as HTMLParagraphElement;
+
+  function syncModeUi() {
+    const collective = modeSelect.value === "collective";
+    beaconControls.style.display = collective ? "none" : "";
+    modeHelp.style.display = collective ? "" : "none";
+  }
+  modeSelect.onchange = () => syncModeUi();
+  syncModeUi();
+
   const contentInput = (
     <textarea class="form-textarea" placeholder="Enter options, one per line. Duplicates increase weight."></textarea>
   ) as HTMLTextAreaElement;
@@ -38,14 +73,12 @@ export function initCreateScreen(root: HTMLElement, _signal?: AbortSignal) {
       <div class="container">
         <div class="card">
           <h1>Create Wheel</h1>
-          {sourceSelect.element}
           <div class="form-group">
-            <label class="form-label">
-              {nextHashCheckbox}
-              Use next hash
-            </label>
+            <label class="form-label">Randomness:</label>
+            {modeSelect}
+            {modeHelp}
           </div>
-          {blockHashGroup}
+          {beaconControls}
           <div class="form-group">
             <label class="form-label">Wheel Contents:</label>
             {contentInput}
@@ -54,11 +87,6 @@ export function initCreateScreen(root: HTMLElement, _signal?: AbortSignal) {
             <button
               type="button"
               onclick={async () => {
-                let hash: HashRef = {
-                  type: "historic",
-                  hash: hashInput.value.trim(),
-                  source: sourceSelect.value,
-                };
                 const content = contentInput.value.trim();
                 const lines = content
                   .split("\n")
@@ -79,15 +107,27 @@ export function initCreateScreen(root: HTMLElement, _signal?: AbortSignal) {
                   label,
                   weight,
                 }));
-                if (nextHashCheckbox.checked) {
-                  hash = { type: "next", source: hash.source };
-                } else if (!hash.hash) {
-                  const latestHash = await getLatestBlockHash(hash.source!);
-                  if (latestHash) hash.hash = latestHash;
-                  else hash = { type: "current", source: hash.source };
+
+                let hash: HashRef;
+                if (modeSelect.value === "collective") {
+                  hash = { type: "collective" };
+                } else {
+                  hash = {
+                    type: "historic",
+                    hash: hashInput.value.trim(),
+                    source: sourceSelect.value,
+                  };
+                  if (nextHashCheckbox.checked) {
+                    hash = { type: "next", source: sourceSelect.value };
+                  } else if (!hash.hash) {
+                    const latestHash = await getLatestBlockHash(sourceSelect.value);
+                    if (latestHash) hash.hash = latestHash;
+                    else hash = { type: "current", source: sourceSelect.value };
+                  }
                 }
+
                 const config: WheelConfig = {
-                  hash: hash,
+                  hash,
                   options,
                   actions: [{ name: "Google Search", template: "https://www.google.com/search?q={}" }],
                 };
