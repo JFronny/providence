@@ -73,7 +73,6 @@ export async function runCollectiveCeremony(
     commits: string[];
     opens: string[];
     url: string;
-    shared: boolean;
   };
 
   let pendingResult: PendingResult | null = null;
@@ -99,7 +98,7 @@ export async function runCollectiveCeremony(
     config.hash = { type: "collective", commits, opens: verified.opens };
     const url = configUrl(config);
     window.history.replaceState(null, "", url);
-    return { nonce, commits, opens: verified.opens, url, shared: false };
+    return { nonce, commits, opens: verified.opens, url };
   }
 
   function finishToWheel(result: PendingResult) {
@@ -241,7 +240,7 @@ export async function runCollectiveCeremony(
     if (pendingResult) {
       titleEl.textContent = "Result ready";
       leadEl.textContent =
-        "Every seal is open and verified. Share this result link so everyone can open the same wheel. The address bar already holds the full transcript.";
+        "Every seal is open and verified. Share this result link so everyone can open the same wheel.";
       const localOk = seal && pendingResult.commits.includes(seal.cHex);
       infoEl.textContent = localOk
         ? `${pendingResult.opens.length} seal(s) opened · your seal is included.`
@@ -251,23 +250,16 @@ export async function runCollectiveCeremony(
       if (m.ok) openMap = m.byCommit;
       renderList(pendingResult.commits, true);
       actionEl.replaceChildren();
-      if (!pendingResult.shared) {
-        actionEl.appendChild(
-          primaryButton("Share result link", () => {
-            void (async () => {
-              await shareOrCopy(pendingResult!.url, "Providence result");
-              pendingResult!.shared = true;
-              await paint();
-            })();
-          }),
-        );
-      } else {
-        actionEl.appendChild(
-          primaryButton("Spin the wheel", () => {
-            finishToWheel(pendingResult!);
-          }),
-        );
-      }
+      actionEl.appendChild(
+        primaryButton("Share result link", () => {
+          void shareOrCopy(pendingResult!.url, "Providence result");
+        }),
+      );
+      actionEl.appendChild(
+        primaryButton("Spin the wheel", () => {
+          finishToWheel(pendingResult!);
+        }),
+      );
       return;
     }
 
@@ -345,7 +337,7 @@ export async function runCollectiveCeremony(
 
       titleEl.textContent = "You’re already in the chain";
       leadEl.textContent =
-        "This device already sealed. To add more people, share the page link from the address bar. When everyone is listed, open your seal — that locks the set and starts reveals.";
+        "This device already sealed. To add more people, share the page link from the address bar. When everyone is listed, open your seal to continue.";
       infoEl.textContent = `${commits.length} seal(s) listed.`;
       window.history.replaceState(
         null,
