@@ -299,8 +299,8 @@ export async function runCollectiveCeremony(
       titleEl.textContent = "Pass it on";
       leadEl.textContent = share.blurb;
       infoEl.textContent = locked.length
-        ? `Opens ${opens.length}/${locked.length}. This page link is what you share.`
-        : `Seals in chain: ${showCommits.length}. This page link is what you share.`;
+        ? `Opens ${opens.length}/${locked.length}.`
+        : `Seals in chain: ${showCommits.length}.`;
       actionEl.appendChild(
         primaryButton("Share link", () => {
           void shareOrCopy(share!.url, share!.title);
