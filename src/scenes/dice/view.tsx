@@ -121,7 +121,7 @@ export class DiceView {
   }
 
   showHashInfo(hash: string, source: HashSource) {
-    this.hashInfo.textContent = `${source} Block Hash: ${hash}`;
+    this.hashInfo.textContent = `${source} Hash: ${hash}`;
   }
 
   clearHashInfo() {

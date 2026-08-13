@@ -11,8 +11,8 @@ export function initAboutScreen(root: HTMLElement, _signal?: AbortSignal) {
         <div class="card" style="text-align: left; max-width: 800px; margin: 0 auto;">
           <h1>About Providence</h1>
           <p>
-            Providence is a deterministic wheel of fortune app. It uses Bitcoin nonces as seeds to ensure fairness and
-            verifiability.
+            Providence is a deterministic wheel of fortune app. It uses public randomness sources as seeds
+            so outcomes can be independently verified.
           </p>
 
           <h2>Example Configuration</h2>

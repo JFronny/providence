@@ -9,6 +9,7 @@ export class HashSourceSelect {
       <select class="form-input">
         <option value="Bitcoin">Bitcoin</option>
         <option value="Monero">Monero</option>
+        <option value="NIST">NIST Beacon</option>
       </select>
     ) as HTMLSelectElement;
     this.element = (

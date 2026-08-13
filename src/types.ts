@@ -29,7 +29,7 @@ export interface WheelAction {
  * The source of the hash to be used for the wheel
  * If not provided, the default is {@link DefaultHashSource}
  */
-export type HashSource = "Bitcoin" | "Monero";
+export type HashSource = "Bitcoin" | "Monero" | "NIST";
 export const DefaultHashSource: HashSource = "Bitcoin";
 
 /**

@@ -4,21 +4,50 @@ import type { HashSource } from "src/types.ts";
 // const monero = await moneroTs.connectToDaemonRpc({server: "https://moneronode.org:18081", proxyToWorker: false});
 
 /**
- * Get the latest block hash from a blockchain source
- * @param source blockchain source
- * @returns block hash
+ * Fold a hex entropy string into a 32-bit seed (XOR of successive 32-bit words).
+ * Used for NIST beacon outputValue (512 bits) so the full pulse contributes to the seed.
+ */
+export function seedFromHex(hex: string): number {
+  const clean = hex.trim().replace(/^0x/i, "");
+  if (!/^[0-9a-fA-F]+$/.test(clean) || clean.length < 8) {
+    throw new Error("Invalid hex entropy");
+  }
+  let seed = 0;
+  // Process full 8-hex-digit words; ignore a trailing partial nibble group.
+  const words = Math.floor(clean.length / 8);
+  for (let i = 0; i < words; i++) {
+    const word = parseInt(clean.slice(i * 8, i * 8 + 8), 16);
+    seed ^= word >>> 0;
+  }
+  return seed >>> 0;
+}
+
+/**
+ * Get the latest block hash / pulse id from a public randomness source
+ * @param source randomness source
+ * @returns identifier used later with {@link getNonce}
  */
 export async function getLatestBlockHash(source: HashSource): Promise<string | null> {
   try {
     switch (source) {
-      case "Bitcoin":
+      case "Bitcoin": {
         const bitcoinResponse = await fetch("https://blockstream.info/api/blocks/tip/hash");
         return await bitcoinResponse.text();
-      case "Monero":
+      }
+      case "Monero": {
         const moneroResponse = await fetch("https://xmrchain.net/api/networkinfo");
         const moneroData = await moneroResponse.json();
         return moneroData.data.top_block_hash;
-      // return await monero.getBlockHash(await monero.getHeight());
+        // return await monero.getBlockHash(await monero.getHeight());
+      }
+      case "NIST": {
+        // Pulse id format: "{chainIndex}/{pulseIndex}" (stable REST path segment).
+        const nistResponse = await fetch(`https://beacon.nist.gov/beacon/2.0/pulse/last`);
+        if (!nistResponse.ok) return null;
+        const nistData = await nistResponse.json();
+        const pulse = nistData.pulse;
+        return `${pulse.chainIndex}/${pulse.pulseIndex}`;
+      }
     }
   } catch (error) {
     console.error("Failed to fetch latest block hash:", error);
@@ -27,23 +56,37 @@ export async function getLatestBlockHash(source: HashSource): Promise<string | n
 }
 
 /**
- * Get the nonce of a block hash
- * @param blockHash block hash
- * @param source blockchain source
- * @returns 32-bit integer nonce
+ * Get a 32-bit integer seed for the given source identifier
+ * @param blockHash block hash or NIST pulse id (`chain/pulse`)
+ * @param source randomness source
+ * @returns 32-bit integer seed
  */
 export async function getNonce(blockHash: string, source: HashSource): Promise<number | null> {
   try {
     switch (source) {
-      case "Bitcoin":
+      case "Bitcoin": {
         const bitcoinResponse = await fetch(`https://blockstream.info/api/block/${blockHash}`);
         const bitcoinData = await bitcoinResponse.json();
         return bitcoinData.nonce;
-      case "Monero":
+      }
+      case "Monero": {
         const moneroResponse = await fetch(`https://xmrchain.net/api/rawblock/${blockHash}`);
         const moneroData = await moneroResponse.json();
         return moneroData.data.nonce;
-      // return (await monero.getBlockHeaderByHash(blockHash)).getNonce();
+        // return (await monero.getBlockHeaderByHash(blockHash)).getNonce();
+      }
+      case "NIST": {
+        const match = /^(\d+)\/(\d+)$/.exec(blockHash.trim());
+        if (!match) {
+          console.error("Invalid NIST pulse id (expected chainIndex/pulseIndex):", blockHash);
+          return null;
+        }
+        const [, chainIndex, pulseIndex] = match;
+        const nistResponse = await fetch(`https://beacon.nist.gov/beacon/2.0/chain/${chainIndex}/pulse/${pulseIndex}`);
+        if (!nistResponse.ok) return null;
+        const nistData = await nistResponse.json();
+        return seedFromHex(nistData.pulse.outputValue);
+      }
     }
   } catch (error) {
     console.error("Failed to fetch latest block nonce:", error);

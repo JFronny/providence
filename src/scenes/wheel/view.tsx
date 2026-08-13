@@ -36,7 +36,7 @@ export class WheelView {
             {wheelWrapper}
             {this.spinButton}
             <div class="block-hash">
-              {hashSource} Block Hash: {blockHash}
+              {hashSource} Hash: {blockHash}
             </div>
             {this.respinCount}
             {this.dialog}
