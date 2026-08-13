@@ -51,25 +51,34 @@ export class WheelModel {
     });
   }
 
-  spin() {
-    if (this.isSpinning) return;
+  /** Seed used for the Nth spin (matches production spin logic). */
+  spinSeed(respinCount: number = this.respinCount): number {
+    return this.baseSeed ^ respinCount ^ this.sectors.length;
+  }
 
-    const seed = this.baseSeed ^ this.respinCount ^ this.sectors.length;
-    this.respinCount++;
-
-    // Pick winner
-    const rand = mulberry32(seed);
+  /**
+   * Pick a winner index using the same weighted draw as a live spin.
+   * Consumes one `rand()` call from the provided RNG (mulberry32 stream).
+   */
+  pickWinnerIndex(rand: () => number): number {
     const r = rand() * this.totalWeight;
     let accumulatedWeight = 0;
-    let winnerIndex = -1;
     for (let i = 0; i < this.sectors.length; i++) {
       accumulatedWeight += this.sectors[i].weight!;
       if (r <= accumulatedWeight) {
-        winnerIndex = i;
-        break;
+        return i;
       }
     }
+    return this.sectors.length - 1;
+  }
 
+  spin() {
+    if (this.isSpinning) return;
+
+    const rand = mulberry32(this.spinSeed(this.respinCount));
+    this.respinCount++;
+
+    const winnerIndex = this.pickWinnerIndex(rand);
     console.log("Picked winner:", this.config.options[winnerIndex]);
 
     this.winningSector = this.sectors[winnerIndex];
