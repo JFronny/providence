@@ -9,7 +9,7 @@ export function initHomeScreen(root: HTMLElement, _signal?: AbortSignal) {
         <h1 style="margin: 0.5em">Providence</h1>
         <div class="card">
           <a class="btn" style="margin: 5px;" href={`${import.meta.env.BASE_URL}create`}>
-            Create
+            Wheel
           </a>
           <a class="btn" style="margin: 5px;" href={`${import.meta.env.BASE_URL}dice`}>
             Dice
