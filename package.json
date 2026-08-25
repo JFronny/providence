@@ -11,7 +11,6 @@
     "lint:github": "oxlint --format=github",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "generate:dice": "vite-node scripts/generate-dice-polyhedra.ts",
     "test:randomness": "vite-node scripts/randomness-tests.ts",
     "test:collective": "vite-node scripts/collective-tests.ts"
   },
